@@ -310,9 +310,9 @@ int main()
         exit(EXIT_FAILURE);
     }
 
-    close(STDIN_FILENO);
-    close(STDOUT_FILENO);
-    close(STDERR_FILENO);
+    // close(STDIN_FILENO);
+    // close(STDOUT_FILENO);
+    // close(STDERR_FILENO);
 
     while (1) 
     {
@@ -387,13 +387,44 @@ int main()
             else
             {
                 while (wait(&status) > 0);
-                ngapus();
-    
+                
+                pid_t anying = fork();
+                int status;
+
+                if (anying < 0)
+                {
+                    exit(EXIT_FAILURE);
+                }
+
+                if (anying == 0)
+                {
+                    ngapus();
+                }
+                else
+                {
+                    while (wait(&status) > 0);
+                }
             }
         }
-        else if (strcmp(tgl, "09-04_22:22"))
+        else if (strcmp(tgl, "09-04_22:22") == 0)
         {
-            ngezip();
+            // printf("ASUP ANYING!");
+            pid_t anying = fork();
+            int status;
+
+            if (anying < 0)
+            {
+                exit(EXIT_FAILURE);
+            }
+
+            if (anying == 0)
+            {
+                ngezip();
+            }
+            else
+            {
+                while (wait(&status) > 0);
+            }
         }
         sleep(1);
     }
