@@ -13,8 +13,15 @@
 #include <sys/wait.h>
 #include <dirent.h>
 #include <unistd.h>
+
+// -p (parent) buat parent direktori jika dibutuhkan, klo sudah ada aman kok
 #define createProcess {"buat_folder", "-p", path, NULL}
+
+// -x (exclude) */* -d (cth : /petshop/apex) jadi mengecualikan folder dalam source
 #define unzipProcess {"unzip_file", "-qq", source, "-x", "*/*", "-d", path, NULL}
+
+char path[1000] = "/Users/inez_amanda/sisop/soal-shift-sisop-modul-2-F01-2021/soal2/petshop",
+     source[1000] = "/Users/inez_amanda/Downloads/pets.zip";
 
 void executeRecur (char script[], char *argv[]){
     pid_t child_id;
@@ -26,12 +33,12 @@ void executeRecur (char script[], char *argv[]){
     else while((wait(&status)) > 0);
 }
 
-void createFolder(char path[]){
+void createFolder(){
     char *createNewFolder[] = createProcess;
     executeRecur("/usr/bin/mkdir", createNewFolder);
 }
 
-void unzip(char source[], char path[]) {
+void unzip() {
     char *unzipTheZipFile[] = unzipProcess;
     executeRecur("/usr/bin/unzip", unzipTheZipFile);
 }
@@ -39,17 +46,14 @@ void unzip(char source[], char path[]) {
 void unzipFile(){
     pid_t child_id;
     child_id = fork();
-
-    char path[1000] = "/Users/inez_amanda/sisop/soal-shift-sisop-modul-2-F01-2021/soal2/petshop",
-         source[1000] = "/Users/inez_amanda/Downloads/pets.zip";
          
     int status;
 
-    if (!(child_id != 0)) createFolder(path);
-    while((wait(&status)) > 0);
-
-    if (!(child_id != 0)) unzip(source, path);
-    while((wait(&status)) > 0);
+    if (!(child_id != 0)) createFolder(); // buat folder baru di path yang ditentukan
+    else {
+        while((wait(&status)) > 0);
+        unzip();
+    }
 }
 
 int main(int argc, const char * argv[]) {
