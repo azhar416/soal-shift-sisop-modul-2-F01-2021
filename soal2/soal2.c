@@ -13,53 +13,43 @@
 #include <sys/wait.h>
 #include <dirent.h>
 #include <unistd.h>
-#define DIRECTORY_PATH *directory_path
+#define createProcess {"buat_folder", "-p", path, NULL}
+#define unzipProcess {"unzip_file", "-qq", source, "-x", "*/*", "-d", path, NULL}
 
-void executeRecur (char script[], char *argv []){
+void executeRecur (char script[], char *argv[]){
     pid_t child_id;
-    int status;
-
     child_id = fork();
+
+    int status;
 
     if (child_id == 0) execv(script, argv);
-    else
-        // while buat jaga jaga jika ada process yang punya lebih dari satu child
-        // child jalan dluan diikuti parent
-        while((wait(&status)) > 0);
+    else while((wait(&status)) > 0);
 }
 
-void unzipFiles () {
+void createFolder(char path[]){
+    char *createNewFolder[] = createProcess;
+    executeRecur("/usr/bin/mkdir", createNewFolder);
+}
+
+void unzip(char source[], char path[]) {
+    char *unzipTheZipFile[] = unzipProcess;
+    executeRecur("/usr/bin/unzip", unzipTheZipFile);
+}
+
+void unzipFile(){
     pid_t child_id;
-    int status;
-    char path[1000] = "/Users/inez_amanda/sisop/p2/soal2/petshop",
-        source[1000] = "/Users/inez_amanda/Downloads/pets.zip";
-    
     child_id = fork();
-    
-    if (child_id == 0) {
-        // -p path
-        char *newFolder[] = {"buat_folder", "-p", path, NULL};
-        executeRecur("/usr/bin/mkdir", newFolder);
-        
-        // -d directory
-        char *unzip[] = {"unzip_file", "-d", path, source, NULL};
-        executeRecur("/usr/bin/unzip", unzip);
-        
-        DIR *fd = opendir(path);
-        struct dirent DIRECTORY_PATH;
-        if (fd != NULL) {
-            while (((directory_path) = readdir(fd)) != NULL) { // Loop through each file in the directory
-            // Recurse into subdirectory if found
-                if ((&DIRECTORY_PATH) -> d_type == DT_DIR){
-                    char base[1000] = "/Users/inez_amanda/sisop/p2/soal2/petshop/";
-                    strcat(base, (&DIRECTORY_PATH) -> d_name);
-                    char *argv3[] = {"remove", "-rf", base, NULL};
-                    executeRecur("/usr/bin/rm", argv3);
-                }
-            }
-        }
-    }
-    else while ((wait(&status)) > 0);
+
+    char path[1000] = "/Users/inez_amanda/sisop/soal-shift-sisop-modul-2-F01-2021/soal2/petshop",
+         source[1000] = "/Users/inez_amanda/Downloads/pets.zip";
+         
+    int status;
+
+    if (!(child_id != 0)) createFolder(path);
+    while((wait(&status)) > 0);
+
+    if (!(child_id != 0)) unzip(source, path);
+    while((wait(&status)) > 0);
 }
 
 int main(int argc, const char * argv[]) {
@@ -74,10 +64,9 @@ int main(int argc, const char * argv[]) {
     }
 
     if (child_id == 0) {
-        unzipFiles();
-    } else {
+        unzipFile();
+    } else
         // while buat jaga jaga jika ada process yang punya lebih dari satu child
         // child jalan dluan diikuti parent
         while((wait(&status)) > 0);
-    }
 }
