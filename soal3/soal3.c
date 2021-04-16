@@ -13,69 +13,20 @@
 #include <errno.h>
 
 char curr[40],curr2[40], curr3[40];
-void caesar(char *pointer, int num)
-{
-    char a;
-    int b;
-    for (b= 0; pointer[b]!='\0'; ++b)
-    {
-        a = pointer[b];
-        if (a>='a' && a<= 'z')
-        {
-            a = a+ num;
-            if (a>='z')
-            {
-                a= a- 'z' + 'a' -1;
-                pointer[b] = a;
-            }
-        }
-        else if(a>='A' && a<='Z')
-        {
-            a = a + num;
-            if(a>='Z'){
-                a = a - 'Z' + 'A' -1;
-                pointer[b] = a;
-            }
-        }
-    }
-}
 
-void download()
+void daemonstart()
 {
-    char link[50];
-    pid_t child_id2, child_id3;
-    child_id2 = fork();
-        if(child_id2<0)
-        {
-            exit(0);
-        }
-        if(child_id2 == 0)
-        {
-            chdir(curr);
-            for(int i=0;i<10;i++){
-                time_t s2 = time(NULL);
-                struct tm* t2= localtime(&s2);
-                strftime(curr2, 40, "%Y-%m-%d_%H:%M:%S", t2);
-                sprintf(link , "https://picsum.photos/%ld", (s2 % 1000) + 100);
-                
-                child_id3 = fork();
-                if(child_id3<0)
-                {
-                    exit(0);
-                }
-                if(child_id3==0)
-                {
-                    char *argv[]= {"wget", link, "-O", curr2, "-o", "/dev/null", NULL};
-                    execv("/usr/bin/wget", argv);
-                }
-                sleep(5);
-            }
-            char isi[100] = "Download Succes";
-            FILE* caesarc = fopen("c1.txt", "w+");
-            caesar(isi,5);
-            fprintf(caesarc,"%s",isi);
-            fclose(caesarc);
-        }
+	pid_t pid, sid;
+    pid = fork();
+    if(pid < 0) exit(EXIT_FAILURE);
+    if(pid > 0) exit(EXIT_SUCCESS);
+    umask(0);
+    sid = setsid();
+    if(sid < 0) exit(EXIT_FAILURE);
+    //if((chdir("/")) < 0) exit(EXIT_FAILURE);
+    close(STDIN_FILENO);
+    close(STDOUT_FILENO);
+    close(STDERR_FILENO);
 }
 
 void zipmode()
@@ -107,7 +58,29 @@ void hapus(){
 
 int main(int argc, char* argv[]){
 
-    int status1, status2, status3;
+    if(argc != 2 || (argv[1][1] != 'z' && argv[1][1] != 'x')) 
+    {
+        printf("menu -z atau -x\n");
+        exit(0);
+    }
+    int status, status1, status2, status3;
+
+    FILE* kill;
+    kill = fopen("kill.sh", "w");
+    fprintf(kill, "#!/bin/bash\nkill %d\nkill %d\necho \'Killed program.\'\nrm \"$0\"", getpid() + 2, getpid() + 3);
+    fclose(kill);
+    pid_t cid;
+    cid = fork();
+    if(cid < 0) {
+        exit(0);
+    }
+    if(cid = 0){
+        char *ag[] = {"chmod", "u+x", "kill.sh", NULL};
+        execv("/bin/chmod", ag);
+    }
+    while(wait(&status) > 0);
+
+    daemonstart();
 
     while(1)
     {
@@ -128,7 +101,70 @@ int main(int argc, char* argv[]){
         }
 
         while(wait(&status1)>0);
-        download();
+        int status_id;
+        char link[50];
+        pid_t child_id2, child_id3;
+        child_id2 = fork();
+        if(child_id2<0)
+        {
+            exit(0);
+        }
+        if(child_id2 == 0)
+        {
+            if(argv[1][1] == 'z') prctl(PR_SET_PDEATHSIG, SIGHUP);
+            chdir(curr);
+            for(int i=0;i<10;i++){
+                time_t s2 = time(NULL);
+                struct tm* t2= localtime(&s2);
+                strftime(curr2, 40, "%Y-%m-%d_%H:%M:%S", t2);
+                sprintf(link , "https://picsum.photos/%ld", (s2 % 1000) + 100);
+                
+                child_id3 = fork();
+                if(child_id3<0)
+                {
+                    exit(0);
+                }
+                if(child_id3==0)
+                {
+                    char *argv[]= {"wget", link, "-O", curr2, "-o", "/dev/null", NULL};
+                    execv("/usr/bin/wget", argv);
+                }
+                sleep(5);
+            }
+
+            while(wait(&status_id)>0);
+            char str_message[100] = "Download Succes";
+
+            //Caesar cipher shift 5
+            for(int j = 0; str_message[j] != '\0'; ++j)
+            {
+                char ch = str_message[j];
+
+                if(ch >= 'a' && ch <= 'z')
+                {
+                    ch = ch + 5;
+                    if(ch > 'z')
+                    {
+                        ch = ch - 'z' + 'a' - 1;
+                    }
+                    str_message[j] = ch;
+                }
+
+                else if(ch >= 'A' && ch <= 'Z')
+                {
+                    ch = ch + 5;
+                    if(ch > 'Z')
+                    {
+                        ch = ch - 'Z' + 'A' - 1;
+                    }
+                    str_message[j] = ch;
+                }
+            }
+            
+            FILE* caesarc = fopen("status.txt", "w");
+            fprintf(caesarc,"%s",str_message);
+            fclose(caesarc);
+        }
 
         while(wait(&status2)>0);
         zipmode();
