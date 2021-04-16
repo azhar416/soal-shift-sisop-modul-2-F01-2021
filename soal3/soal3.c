@@ -13,16 +13,44 @@
 #include <errno.h>
 
 char curr[40],curr2[40], curr3[40];
+void caesar(char *pointer, int num)
+{
+    char a;
+    int b;
+    for (b= 0; pointer[b]!='\0'; ++b)
+    {
+        a = pointer[b];
+        if (a>='a' && a<= 'z')
+        {
+            a = a+ num;
+            if (a>='z')
+            {
+                a= a- 'z' + 'a' -1;
+                pointer[b] = a;
+            }
+        }
+        else if(a>='A' && a<='Z')
+        {
+            a = a + num;
+            if(a>='Z'){
+                a = a - 'Z' + 'A' -1;
+                pointer[b] = a;
+            }
+        }
+    }
+}
 
 void download()
 {
     char link[50];
     pid_t child_id2, child_id3;
     child_id2 = fork();
-        if(child_id2<0){
+        if(child_id2<0)
+        {
             exit(0);
         }
-        if(child_id2 == 0){
+        if(child_id2 == 0)
+        {
             chdir(curr);
             for(int i=0;i<10;i++){
                 time_t s2 = time(NULL);
@@ -31,16 +59,22 @@ void download()
                 sprintf(link , "https://picsum.photos/%ld", (s2 % 1000) + 100);
                 
                 child_id3 = fork();
-                if(child_id3<0){
+                if(child_id3<0)
+                {
                     exit(0);
                 }
-                if(child_id3==0){
+                if(child_id3==0)
+                {
                     char *argv[]= {"wget", link, "-O", curr2, "-o", "/dev/null", NULL};
                     execv("/usr/bin/wget", argv);
                 }
                 sleep(5);
             }
-
+            char isi[100] = "Download Succes";
+            FILE* caesarc = fopen("c1.txt", "w+");
+            caesar(isi,5);
+            fprintf(caesarc,"%s",isi);
+            fclose(caesarc);
         }
 }
 
@@ -75,17 +109,20 @@ int main(int argc, char* argv[]){
 
     int status1, status2, status3;
 
-    while(1){
+    while(1)
+    {
         pid_t child_id;
         time_t s1 = time(NULL);
         struct tm* t1= localtime(&s1);
         strftime(curr, 40, "%Y-%m-%d_%H:%M:%S" , t1);
 
         child_id = fork();
-        if (child_id < 0){
+        if (child_id < 0)
+        {
             exit(0);
         }
-        if(child_id==0){
+        if(child_id==0)
+        {
             char *argv[] = {"mkdir", curr, NULL};
             execv("/bin/mkdir", argv);
         }
