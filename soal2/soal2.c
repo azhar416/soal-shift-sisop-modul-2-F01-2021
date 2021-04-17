@@ -20,7 +20,12 @@
 #define copyProcess {"cp", source, path, NULL};
 
 // char path[1000] = "/Users/inez_amanda/sisop/soal-shift-sisop-modul-2-F01-2021/soal2/petshop",
-//      source[1000] = "/Users/inez_amanda/Downloads/pets.zip";
+//      source[1000] = "/Users/inez_amanda/Downloads/pets.zip",
+//      destFolder[1000] = "/Users/inez_amanda/sisop/soal-shift-sisop-modul-2-F01-2021/soal2/petshop/",
+//      fileOutput[1000] = "/Users/inez_amanda/sisop/soal-shift-sisop-modul-2-F01-2021/soal2/petshop/",
+//      destination[1000] =  "/Users/inez_amanda/sisop/soal-shift-sisop-modul-2-F01-2021/soal2/petshop/",
+//      source1[1000] = "/Users/inez_amanda/sisop/soal-shift-sisop-modul-2-F01-2021/soal2/petshop/",
+//      source2[1000] = "/Users/inez_amanda/sisop/soal-shift-sisop-modul-2-F01-2021/soal2/petshop/";
 
 char path[1000] = "/home/azhar416/soal-shift-sisop-modul-2-F01-2021/soal2/petshop/",
      source[1000] = "/home/azhar416/Downloads/pets.zip";
@@ -83,13 +88,10 @@ int main(int argc, const char * argv[]) {
     {
         // while buat jaga jaga jika ada process yang punya lebih dari satu child
         while((wait(&status)) > 0); 
-
-    DIR *dir = opendir(path);
-    struct dirent *dp;
-
-    if (dir)
-    {
-        while ((dp = readdir(dir)) != NULL)
+        DIR *dir = opendir(path);
+        struct dirent *dp;
+        // char destFolder[1000] = "/Users/inez_amanda/sisop/soal-shift-sisop-modul-2-F01-2021/soal2/petshop/";
+        if (dir)
         {
             while ((dp = readdir(dir)) != NULL)
             {
@@ -210,11 +212,10 @@ int main(int argc, const char * argv[]) {
                         //end if
                     }
                 }
-                //end if
-            }
-            else
-                continue;
-        } 
-        (void) closedir(dir);
+                else
+                    continue;
+            } 
+            (void) closedir(dir);
+        }
     }
 }
