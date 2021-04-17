@@ -20,12 +20,7 @@
 #define copyProcess {"cp", source, path, NULL};
 
 // char path[1000] = "/Users/inez_amanda/sisop/soal-shift-sisop-modul-2-F01-2021/soal2/petshop",
-//      source[1000] = "/Users/inez_amanda/Downloads/pets.zip",
-//      destFolder[1000] = "/Users/inez_amanda/sisop/soal-shift-sisop-modul-2-F01-2021/soal2/petshop/",
-//      fileOutput[1000] = "/Users/inez_amanda/sisop/soal-shift-sisop-modul-2-F01-2021/soal2/petshop/",
-//      destination[1000] =  "/Users/inez_amanda/sisop/soal-shift-sisop-modul-2-F01-2021/soal2/petshop/",
-//      source1[1000] = "/Users/inez_amanda/sisop/soal-shift-sisop-modul-2-F01-2021/soal2/petshop/",
-//      source2[1000] = "/Users/inez_amanda/sisop/soal-shift-sisop-modul-2-F01-2021/soal2/petshop/";
+//      source[1000] = "/Users/inez_amanda/Downloads/pets.zip";
 
 char path[1000] = "/home/azhar416/soal-shift-sisop-modul-2-F01-2021/soal2/petshop/",
      source[1000] = "/home/azhar416/Downloads/pets.zip";
@@ -90,7 +85,7 @@ int main(int argc, const char * argv[]) {
 
     DIR *dir = opendir(path);
     struct dirent *dp;
-    // char destFolder[1000] = "/Users/inez_amanda/sisop/soal-shift-sisop-modul-2-F01-2021/soal2/petshop/";
+
     if (dir)
     {
         while ((dp = readdir(dir)) != NULL)
@@ -201,7 +196,6 @@ int main(int argc, const char * argv[]) {
                     char *arge[] = {"rm", erase, NULL};
                     execv("/bin/rm", arge);
                 }
-
                 //end if
             }
             else
