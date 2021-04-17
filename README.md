@@ -47,9 +47,7 @@ masih magang, maka beban tugasnya tidak sebesar beban tugas pekerja
 tetap perusahaan. Di hari pertama Ranora bekerja, pembimbing magang
 Ranora memberi tugas pertamanya untuk membuat sebuah program.
 
-### A. Ranora harus membuat sebuah program C yang dimana setiap 40 
-detik membuat sebuah direktori dengan nama sesuai timestamp 
-[YYYY-mm-dd_HH:ii:ss].
+### A. Ranora harus membuat sebuah program C yang dimana setiap 40 detik membuat sebuah direktori dengan nama sesuai timestamp [YYYY-mm-dd_HH:ii:ss].
 
 Pada kasus ini menggunakan fungsi `strftime` dan menggunakan `fork` 
 dan `execv` untuk membuat directory. Selang waktu yang diberikan
@@ -79,12 +77,7 @@ s = 1;
     }
 ```
 
-### B. Setiap direktori yang sudah dibuat diisi dengan 10 gambar yang
-didownload dari https://picsum.photos/, dimana setiap gambar akan
-didownload setiap 5 detik. Setiap gambar yang didownload akan diberi 
-nama dengan format timestamp [YYYY-mm-dd_HH:ii:ss] dan gambar tersebut 
-berbentuk persegi dengan ukuran (n%1000) + 50 pixel dimana n adalah 
-detik Epoch Unix.
+### B. Setiap direktori yang sudah dibuat diisi dengan 10 gambar yang didownload dari https://picsum.photos/, dimana setiap gambar akandidownload setiap 5 detik. Setiap gambar yang didownload akan diberi nama dengan format timestamp [YYYY-mm-dd_HH:ii:ss] dan gambar tersebut berbentuk persegi dengan ukuran (n%1000) + 50 pixel dimana n adalah detik Epoch Unix.
 
 Pada kasus ini akan mendownload 10 foto menggunakan looping `for`
 untuk jeda `sleep(5)`. Penamaan file menggunakan waktu dan memakai 
@@ -112,15 +105,7 @@ chdir(curr);
             }
 ```
 
-### C. Setelah direktori telah terisi dengan 10 gambar, program tersebut 
-akan membuat sebuah file “status.txt”, dimana didalamnya berisi pesan 
-“Download Success” yang terenkripsi dengan teknik Caesar Cipher dan dengan
-shift 5. Caesar Cipher adalah Teknik enkripsi sederhana yang dimana dapat 
-melakukan enkripsi string sesuai dengan shift/key yang kita tentukan. Misal 
-huruf “A” akan dienkripsi dengan shift 4 maka akan menjadi “E”. Karena Ranora 
-orangnya perfeksionis dan rapi, dia ingin setelah file tersebut dibuat, 
-direktori akan di zip dan direktori akan didelete, sehingga menyisakan hanya 
-file zip saja.
+### C. Setelah direktori telah terisi dengan 10 gambar, program tersebut akan membuat sebuah file “status.txt”, dimana didalamnya berisi pesan “Download Success” yang terenkripsi dengan teknik Caesar Cipher dan denganshift 5. Caesar Cipher adalah Teknik enkripsi sederhana yang dimana dapat melakukan enkripsi string sesuai dengan shift/key yang kita tentukan. Misal huruf “A” akan dienkripsi dengan shift 4 maka akan menjadi “E”. Karena Ranora orangnya perfeksionis dan rapi, dia ingin setelah file tersebut dibuat, direktori akan di zip dan direktori akan didelete, sehingga menyisakan hanya file zip saja.
 
 Ada 2 kasus yang pertama yaitu setelah melakukan proses `download` akan membuat 
 status.txt dimana akan menampilkan hasil `Download Success` dengan menggunakan
@@ -192,13 +177,7 @@ void hapus(){
 }
 ```
 
-### D. Untuk mempermudah pengendalian program, pembimbing magang Ranora 
-ingin program tersebut akan men-generate sebuah program “Killer” yang 
-executable, dimana program tersebut akan menterminasi semua proses program 
-yang sedang berjalan dan akan menghapus dirinya sendiri setelah program 
-dijalankan. Karena Ranora menyukai sesuatu hal yang baru, maka Ranora 
-memiliki ide untuk program “Killer” yang dibuat nantinya harus merupakan 
-program bash.
+### D. Untuk mempermudah pengendalian program, pembimbing magang Ranora ingin program tersebut akan men-generate sebuah program “Killer” yang executable, dimana program tersebut akan menterminasi semua proses program yang sedang berjalan dan akan menghapus dirinya sendiri setelah program dijalankan. Karena Ranora menyukai sesuatu hal yang baru, maka Ranora memiliki ide untuk program “Killer” yang dibuat nantinya harus merupakan program bash.
 
 Pada proses ini akan membuat file menggunakan program bash dengan nama `killer.sh`.
 Pada killer.sh akan berisi kill pid() dan `rm` pada file itu sendiri
@@ -209,15 +188,7 @@ Pada killer.sh akan berisi kill pid() dan `rm` pada file itu sendiri
         fclose(new);
 ```
 
-### E. Pembimbing magang Ranora juga ingin nantinya program utama yang 
-dibuat Ranora dapat dijalankan di dalam dua mode. Untuk mengaktifkan mode 
-pertama, program harus dijalankan dengan argumen -z, dan Ketika dijalankan 
-dalam mode pertama, program utama akan langsung menghentikan semua operasinya 
-Ketika program Killer dijalankan. Sedangkan untuk mengaktifkan mode kedua, 
-program harus dijalankan dengan argumen -x, dan Ketika dijalankan dalam mode 
-kedua, program utama akan berhenti namun membiarkan proses di setiap direktori 
-yang masih berjalan hingga selesai (Direktori yang sudah dibuat akan mendownload 
-gambar sampai selesai dan membuat file txt, lalu zip dan delete direktori).
+### E. Pembimbing magang Ranora juga ingin nantinya program utama yang dibuat Ranora dapat dijalankan di dalam dua mode. Untuk mengaktifkan mode pertama, program harus dijalankan dengan argumen -z, dan Ketika dijalankan dalam mode pertama, program utama akan langsung menghentikan semua operasinya Ketika program Killer dijalankan. Sedangkan untuk mengaktifkan mode kedua, program harus dijalankan dengan argumen -x, dan Ketika dijalankan dalam mode kedua, program utama akan berhenti namun membiarkan proses di setiap direktori yang masih berjalan hingga selesai (Direktori yang sudah dibuat akan mendownload gambar sampai selesai dan membuat file txt, lalu zip dan delete direktori).
 
 Pada kasus ini untuk pembuatan file `killer.sh` menggunakan kondisi if else
 ```
