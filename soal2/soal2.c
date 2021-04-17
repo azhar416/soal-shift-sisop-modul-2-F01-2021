@@ -85,128 +85,137 @@ int main(int argc, const char * argv[]) {
     if ((child_id = fork()) < 0) exit(EXIT_FAILURE);
     if (!(child_id != 0)) unzipFile(child_id, status);
     else 
+    {
         // while buat jaga jaga jika ada process yang punya lebih dari satu child
         while((wait(&status)) > 0); 
-
-    DIR *dir = opendir(path);
-    struct dirent *dp;
-    // char destFolder[1000] = "/Users/inez_amanda/sisop/soal-shift-sisop-modul-2-F01-2021/soal2/petshop/";
-    if (dir)
-    {
-        while ((dp = readdir(dir)) != NULL)
+        DIR *dir = opendir(path);
+        struct dirent *dp;
+        // char destFolder[1000] = "/Users/inez_amanda/sisop/soal-shift-sisop-modul-2-F01-2021/soal2/petshop/";
+        if (dir)
         {
-            // while(wait(NULL) > 0);
-            if (strcmp(dp->d_name, ".") != 0 && strcmp(dp->d_name, "..") != 0)
+            while ((dp = readdir(dir)) != NULL)
             {
-                // if (fork() == 0) continue;
-
-                char namafile[1000];
-                strcpy(namafile, dp->d_name);
-                char *cut = strtok(namafile, ";");
-                // printf("%s\n", namafile);
-                char folder[100];
-                strcpy(folder, path);
-                strcat(folder, "/");
-                strcat(folder, cut);
-
-                pid_t anak = fork();
-                if(anak<0) exit(EXIT_FAILURE);
-                if(anak==0){
-                    char *newFolder[] = {"mkdir", "-p", folder, NULL};
-                    execv("/usr/bin/mkdir", newFolder);
-                }
-                while(wait(NULL) > 0);
-                
-                char namadir[1000];
-                strcpy(namadir, dp->d_name);
-                char *anothercut = cut_four(namadir);
-                char *token;
-                while (token = strtok_r(anothercut, "_", &anothercut))
+                // while(wait(NULL) > 0);
+                if (strcmp(dp->d_name, ".") != 0 && strcmp(dp->d_name, "..") != 0)
                 {
-                    while(wait(NULL) > 0);
-                    char *temp = token;
-                    char *token2;
-                    int i = 0;
-                    char jenis[100], nama[100], umur[100];
-                    while (token2 = strtok_r(temp, ";", &temp))
-                    {
-                        while(wait(NULL) > 0);
-                        if (i == 0)
-                        {
-                            strcpy(jenis, token2);
-                        }
-                        if (i == 1)
-                        {
-                            strcpy(nama, token2);
-                        }
-                        if (i == 2)
-                        {
-                            strcpy(umur, token2);
-                        }
-                        i++;
+                    // if (fork() == 0) continue;
+
+                    char namafile[1000];
+                    strcpy(namafile, dp->d_name);
+                    char *cut = strtok(namafile, ";");
+                    // printf("%s\n", namafile);
+                    char folder[100];
+                    strcpy(folder, path);
+                    strcat(folder, "/");
+                    strcat(folder, cut);
+
+                    // FORK 1
+                    pid_t anak = fork();
+                    if(anak<0) exit(EXIT_FAILURE);
+                    if(anak==0){
+                        char *newFolder[] = {"mkdir", "-p", folder, NULL};
+                        execv("/usr/bin/mkdir", newFolder);
                     }
-                    while(wait(NULL) > 0);
-                    if (fork() == 0)
+                    else
                     {
                         while(wait(NULL) > 0);
-                        // path/petshop/[file].jpg
-                        char sc[1000];
-                        strcpy(sc, path);
-                        strcat(sc, dp->d_name);
-                        // printf("SC : %s\n", sc);
-
-                        // path/petshop/[jenishewan]/[namahewan].jpg
-                        char dest[1000];
-                        strcpy(dest, path);
-                        strcat(dest, jenis);
-                        strcat(dest, "/");
-                        strcat(dest, nama);
-                        strcat(dest, ".jpg");
-                        // printf("DEST : %s\n", dest);
-
-                        if (fork() == 0)
+                        char namadir[1000];
+                        strcpy(namadir, dp->d_name);
+                        char *anothercut = cut_four(namadir);
+                        char *token;
+                        while (token = strtok_r(anothercut, "_", &anothercut))
                         {
                             while(wait(NULL) > 0);
-                            char *argcp[] = {"cp", sc, dest, NULL};
-                            execv("/bin/cp", argcp);
+                            char *temp = token;
+                            char *token2;
+                            int i = 0;
+                            char jenis[100], nama[100], umur[100];
+                            while (token2 = strtok_r(temp, ";", &temp))
+                            {
+                                while(wait(NULL) > 0);
+                                if (i == 0)
+                                {
+                                    strcpy(jenis, token2);
+                                }
+                                if (i == 1)
+                                {
+                                    strcpy(nama, token2);
+                                }
+                                if (i == 2)
+                                {
+                                    strcpy(umur, token2);
+                                }
+                                i++;
+                            }
+                            // while(wait(NULL) > 0);
+
+                            //FORK 2
+                            if (fork() == 0)
+                            {
+                                // while(wait(NULL) > 0);
+                                // path/petshop/[file].jpg
+                                char sc[1000];
+                                strcpy(sc, path);
+                                strcat(sc, dp->d_name);
+                                // printf("SC : %s\n", sc);
+        
+                                // path/petshop/[jenishewan]/[namahewan].jpg
+                                char dest[1000];
+                                strcpy(dest, path);
+                                strcat(dest, jenis);
+                                strcat(dest, "/");
+                                strcat(dest, nama);
+                                strcat(dest, ".jpg");
+                                // printf("DEST : %s\n", dest);
+        
+                                    char *argcp[] = {"cp", sc, dest, NULL};
+                                    execv("/bin/cp", argcp);
+
+                                
+                            }
+                            else
+                            {
+                                while(wait(NULL) > 0);
+                                char isi[1000] = "Nama : ";
+                                strcat(isi, nama);
+                                strcat(isi, "\nUmur : ");
+                                strcat(isi, umur);
+                                strcat(isi, " tahun\n\n");
+
+                                char f[1000];
+                                strcpy(f, path);
+                                strcat(f, jenis);
+                                strcat(f, "/keterangan.txt");
+                                // printf("%s\n", f);
+                                FILE* files = fopen(f, "a");
+                                fputs(isi, files);
+                                fclose(files);
+                            }
+                            // end while
+                            // exit(EXIT_SUCCESS);
                         }
+                        // exit(EXIT_SUCCESS);
+                        while(wait(NULL) > 0);
+                        char erase[1000];
+                        strcpy(erase, path);
+                        strcat(erase, dp->d_name);
+        
+                        if(fork() == 0)
+                        {
+                            while(wait(NULL) > 0);
+                            char *arge[] = {"rm", erase, NULL};
+                            execv("/bin/rm", arge);
+                        }
+                        else{
+                            while(wait(NULL) > 0);
+                        }
+                        //end if
                     }
-                    while(wait(NULL) > 0);
-                    // exit(EXIT_SUCCESS);
-                    char isi[1000] = "Nama : ";
-                    strcat(isi, nama);
-                    strcat(isi, "\nUmur : ");
-                    strcat(isi, umur);
-                    strcat(isi, " tahun\n\n");
-
-                    char f[1000];
-                    strcpy(f, path);
-                    strcat(f, jenis);
-                    strcat(f, "/keterangan.txt");
-                    // printf("%s\n", f);
-                    FILE* files = fopen(f, "a");
-                    fputs(isi, files);
-                    fclose(files);
-                    // end while
                 }
-                // exit(EXIT_SUCCESS);
-                while(wait(NULL) > 0);
-                char erase[1000];
-                strcpy(erase, path);
-                strcat(erase, dp->d_name);
-
-                if(fork() == 0)
-                {
-                    while(wait(NULL) > 0);
-                    char *arge[] = {"rm", erase, NULL};
-                    execv("/bin/rm", arge);
-                }
-
-                //end if
-            }
-            else
-                continue;
-        } 
-        (void) closedir(dir);
+                else
+                    continue;
+            } 
+            (void) closedir(dir);
+        }
     }
 }
