@@ -79,15 +79,10 @@ int main(int argc, char* argv[])
 
         // memberi signal dan mengisi signal jadi 0
         signal(SIGTERM,op);
-     }
+    }
+    
     while(wait(&killstatus)>0);
 
-    //awalan
-    if(argc != 2 || (argv[1][1] != 'z' && argv[1][1] != 'x')) 
-    {
-        printf("menu -z atau -x\n");
-        exit(0);
-    }
     int status, status1, status2, status3;
 
     daemons();
