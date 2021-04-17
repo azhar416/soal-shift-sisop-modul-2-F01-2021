@@ -3,7 +3,9 @@
 //  soal2
 //
 //  Created by Inez Amanda on 13/04/21.
+//  sama Daffa M Azhar jgn lupa.
 //
+
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
