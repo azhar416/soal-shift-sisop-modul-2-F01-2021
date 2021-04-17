@@ -13,7 +13,7 @@
 #include <errno.h>
 
 char curr[40],curr2[40], curr3[40];
-int signals;
+int s;
 
 void daemons()
 {
@@ -57,25 +57,28 @@ void hapus(){
     }
 }
 
-void orphan(int signum) {
-    signals = 0;
+void op(int signum) {
+    s = 0;
 }
 
 int main(int argc, char* argv[])
 {
     int killstatus;
-    if(strcmp(argv[1],"-z")==0){
-        FILE *ptr2 = NULL;
-        ptr2 = fopen("killer.sh","w");
-        fputs("#!/bin/bash\nkillall soal3\n rm killer.sh",ptr2);
-        fclose(ptr2);
+    if(argv[1][1],"z"){
+
+        FILE *new;
+        new = fopen("killer.sh","w");
+        fputs("#!/bin/bash\nkillall soal3\n rm killer.sh\necho \'Berhasil\'",new);
+        fclose(new);
     }
-    if(strcmp(argv[1],"-x")==0){ 
-        FILE *ptr2 = NULL;
-        ptr2 = fopen("killer.sh","w");
-        fputs("#!/bin/bash\nkillall -15 soal3\n rm killer.sh",ptr2);
-        fclose(ptr2);
-        signal(SIGTERM,orphan);
+    if(argv[1][1],"x"){ 
+        FILE *new;
+        new = fopen("killer.sh","w");
+        fputs("#!/bin/bash\nkillall -15 soal3\n rm killer.sh\necho \'Menunggu proses\'",new);
+        fclose(new);
+
+        // memberi signal dan mengisi signal jadi 0
+        signal(SIGTERM,op);
      }
     while(wait(&killstatus)>0);
 
@@ -88,8 +91,10 @@ int main(int argc, char* argv[])
     int status, status1, status2, status3;
 
     daemons();
-    signals = 1;
-    while(signals)
+
+    //awal penanda =1
+    s = 1;
+    while(s)
     {
         // 3a. Membuat mkdir dengan waktu sesuai soal
         pid_t child_id;
@@ -180,7 +185,8 @@ int main(int argc, char* argv[])
             while(wait(&status3) > 0);
             hapus();
         }
-        if (signals ==0) {
+        //cek signal
+        if (s ==0) {
             break;
         }
         sleep(40);
