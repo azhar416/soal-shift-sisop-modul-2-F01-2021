@@ -13,8 +13,9 @@
 #include <errno.h>
 
 char curr[40],curr2[40], curr3[40];
+int signals;
 
-void daemonstart()
+void daemons()
 {
 	pid_t pid, sid;
     pid = fork();
@@ -56,8 +57,29 @@ void hapus(){
     }
 }
 
-int main(int argc, char* argv[]){
+void orphan(int signum) {
+    signals = 0;
+}
 
+int main(int argc, char* argv[])
+{
+    int killstatus;
+    if(strcmp(argv[1],"-z")==0){
+        FILE *ptr2 = NULL;
+        ptr2 = fopen("killer.sh","w");
+        fputs("#!/bin/bash\nkillall soal3\n rm killer.sh",ptr2);
+        fclose(ptr2);
+    }
+    if(strcmp(argv[1],"-x")==0){ 
+        FILE *ptr2 = NULL;
+        ptr2 = fopen("killer.sh","w");
+        fputs("#!/bin/bash\nkillall -15 soal3\n rm killer.sh",ptr2);
+        fclose(ptr2);
+        signal(SIGTERM,orphan);
+     }
+    while(wait(&killstatus)>0);
+
+    //awalan
     if(argc != 2 || (argv[1][1] != 'z' && argv[1][1] != 'x')) 
     {
         printf("menu -z atau -x\n");
@@ -65,25 +87,11 @@ int main(int argc, char* argv[]){
     }
     int status, status1, status2, status3;
 
-    FILE* kill;
-    kill = fopen("kill.sh", "w");
-    fprintf(kill, "#!/bin/bash\nkill %d\nkill %d\necho \'Killed program.\'\nrm \"$0\"", getpid() + 2, getpid() + 3);
-    fclose(kill);
-    pid_t cid;
-    cid = fork();
-    if(cid < 0) {
-        exit(0);
-    }
-    if(cid = 0){
-        char *ag[] = {"chmod", "u+x", "kill.sh", NULL};
-        execv("/bin/chmod", ag);
-    }
-    while(wait(&status) > 0);
-
-    daemonstart();
-
-    while(1)
+    daemons();
+    signals = 1;
+    while(signals)
     {
+        // 3a. Membuat mkdir dengan waktu sesuai soal
         pid_t child_id;
         time_t s1 = time(NULL);
         struct tm* t1= localtime(&s1);
@@ -100,6 +108,7 @@ int main(int argc, char* argv[]){
             execv("/bin/mkdir", argv);
         }
 
+        //3b download 10 foto dengan ukuran yang sudah ditentukan
         while(wait(&status1)>0);
         int status_id;
         char link[50];
@@ -117,7 +126,7 @@ int main(int argc, char* argv[]){
                 time_t s2 = time(NULL);
                 struct tm* t2= localtime(&s2);
                 strftime(curr2, 40, "%Y-%m-%d_%H:%M:%S", t2);
-                sprintf(link , "https://picsum.photos/%ld", (s2 % 1000) + 100);
+                sprintf(link , "https://picsum.photos/%ld", (s2 % 1000) + 50);
                 
                 child_id3 = fork();
                 if(child_id3<0)
@@ -133,9 +142,9 @@ int main(int argc, char* argv[]){
             }
 
             while(wait(&status_id)>0);
-            char str_message[100] = "Download Succes";
+            char str_message[100] = "Download Success";
 
-            //Caesar cipher shift 5
+            //3c. Caesar cipher shift 5
             for(int j = 0; str_message[j] != '\0'; ++j)
             {
                 char ch = str_message[j];
@@ -164,15 +173,16 @@ int main(int argc, char* argv[]){
             FILE* caesarc = fopen("status.txt", "w");
             fprintf(caesarc,"%s",str_message);
             fclose(caesarc);
+
+            while(wait(&status2)>0);
+            zipmode();
+
+            while(wait(&status3) > 0);
+            hapus();
         }
-
-        while(wait(&status2)>0);
-        zipmode();
-
-        while(wait(&status3) > 0);
-        hapus();
-
-        
+        if (signals ==0) {
+            break;
+        }
         sleep(40);
     }
 }
