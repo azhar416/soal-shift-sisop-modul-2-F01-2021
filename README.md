@@ -38,3 +38,213 @@ Contoh: “/petshop/cat/joni.jpg”.
 
 ### Penjelasan
 Soal diatas meminta untuk membuat sebuah program untuk membuat directory, mengextract sebuah zip file yang kemudian akan dipindahkan ke directory yang baru dibuat dengan format nama file yang ditentukan setelah diidentifikasi nama file nya, serta membaca dan menyimpan beberapa informasi dari nama file ke dalam sebuah file txt.
+
+## Soal Nomor 3
+Ranora adalah mahasiswa Teknik Informatika yang saat ini sedang 
+menjalani magang di perusahan ternama yang bernama “FakeKos Corp.”
+,perusahaan yang bergerak dibidang keamanan data. Karena Ranora 
+masih magang, maka beban tugasnya tidak sebesar beban tugas pekerja 
+tetap perusahaan. Di hari pertama Ranora bekerja, pembimbing magang
+Ranora memberi tugas pertamanya untuk membuat sebuah program.
+
+### A. Ranora harus membuat sebuah program C yang dimana setiap 40 
+detik membuat sebuah direktori dengan nama sesuai timestamp 
+[YYYY-mm-dd_HH:ii:ss].
+
+Pada kasus ini menggunakan fungsi `strftime` dan menggunakan `fork` 
+dan `execv` untuk membuat directory. Selang waktu yang diberikan
+yaitu 40 detik maka `sleep(40)`.
+
+```
+s = 1;
+    while(s)
+    {
+        // 3a. Membuat mkdir dengan nama waktu sesuai soal
+        pid_t child_id;
+        time_t s1 = time(NULL);
+        struct tm* t1= localtime(&s1);
+        strftime(curr, 40, "%Y-%m-%d_%H:%M:%S" , t1);
+
+        child_id = fork();
+        if (child_id < 0)
+        {
+            exit(0);
+        }
+        if(child_id==0)
+        {
+            char *argv[] = {"mkdir", curr, NULL};
+            execv("/bin/mkdir", argv);
+        }
+                sleep(40);
+    }
+```
+
+### B. Setiap direktori yang sudah dibuat diisi dengan 10 gambar yang
+didownload dari https://picsum.photos/, dimana setiap gambar akan
+didownload setiap 5 detik. Setiap gambar yang didownload akan diberi 
+nama dengan format timestamp [YYYY-mm-dd_HH:ii:ss] dan gambar tersebut 
+berbentuk persegi dengan ukuran (n%1000) + 50 pixel dimana n adalah 
+detik Epoch Unix.
+
+Pada kasus ini akan mendownload 10 foto menggunakan looping `for`
+untuk jeda `sleep(5)`. Penamaan file menggunakan waktu dan memakai 
+`strftime`. 
+
+```
+chdir(curr);
+            for(int i=0;i<10;i++){
+                time_t s2 = time(NULL);
+                struct tm* t2= localtime(&s2);
+                strftime(curr2, 40, "%Y-%m-%d_%H:%M:%S", t2);
+                sprintf(link , "https://picsum.photos/%ld", (s2 % 1000) + 50);
+                
+                child_id3 = fork();
+                if(child_id3<0)
+                {
+                    exit(0);
+                }
+                if(child_id3==0)
+                {
+                    char *argv[]= {"wget", link, "-O", curr2, "-o", "/dev/null", NULL};
+                    execv("/usr/bin/wget", argv);
+                }
+                sleep(5);
+            }
+```
+
+### C. Setelah direktori telah terisi dengan 10 gambar, program tersebut 
+akan membuat sebuah file “status.txt”, dimana didalamnya berisi pesan 
+“Download Success” yang terenkripsi dengan teknik Caesar Cipher dan dengan
+shift 5. Caesar Cipher adalah Teknik enkripsi sederhana yang dimana dapat 
+melakukan enkripsi string sesuai dengan shift/key yang kita tentukan. Misal 
+huruf “A” akan dienkripsi dengan shift 4 maka akan menjadi “E”. Karena Ranora 
+orangnya perfeksionis dan rapi, dia ingin setelah file tersebut dibuat, 
+direktori akan di zip dan direktori akan didelete, sehingga menyisakan hanya 
+file zip saja.
+
+Ada 2 kasus yang pertama yaitu setelah melakukan proses `download` akan membuat 
+status.txt dimana akan menampilkan hasil `Download Success` dengan menggunakan
+Caesar Cipher Shift 5
+```
+char str_message[100] = "Download Success";
+
+            //3c. Caesar cipher shift 5
+            for(int j = 0; str_message[j] != '\0'; ++j)
+            {
+                char ch = str_message[j];
+
+                if(ch >= 'a' && ch <= 'z')
+                {
+                    ch = ch + 5;
+                    if(ch > 'z')
+                    {
+                        ch = ch - 'z' + 'a' - 1;
+                    }
+                    str_message[j] = ch;
+                }
+
+                else if(ch >= 'A' && ch <= 'Z')
+                {
+                    ch = ch + 5;
+                    if(ch > 'Z')
+                    {
+                        ch = ch - 'Z' + 'A' - 1;
+                    }
+                    str_message[j] = ch;
+                }
+            }
+            
+            FILE* caesarc = fopen("status.txt", "w");
+            fprintf(caesarc,"%s",str_message);
+            fclose(caesarc);
+```
+Setelah itu semua foto beserta status.txt akan dibuat zip dan direktori akan
+terhapus.Berikut implementasi nya
+```
+void zipmode()
+{
+    pid_t child_id4;
+    chdir("..");
+    strcpy(curr3, curr);
+    strcat(curr3, ".zip");
+
+    child_id4 = fork();
+    if(child_id4 < 0) exit(0);
+    if(child_id4 == 0)
+    {
+        char *argv[] = {"zip", "-r", curr3, curr, NULL};
+        execv("/usr/bin/zip", argv);
+    }
+}
+```
+
+Untuk menghapus direktori
+```
+void hapus(){
+    pid_t child_id5;
+    child_id5 = fork();
+	if(child_id5 < 0) exit(0);
+    if(child_id5 == 0)
+    {
+        char *argv[] = {"rm", "-r", curr, NULL};
+    	execv("/bin/rm", argv);
+    }
+}
+```
+
+### D. Untuk mempermudah pengendalian program, pembimbing magang Ranora 
+ingin program tersebut akan men-generate sebuah program “Killer” yang 
+executable, dimana program tersebut akan menterminasi semua proses program 
+yang sedang berjalan dan akan menghapus dirinya sendiri setelah program 
+dijalankan. Karena Ranora menyukai sesuatu hal yang baru, maka Ranora 
+memiliki ide untuk program “Killer” yang dibuat nantinya harus merupakan 
+program bash.
+
+Pada proses ini akan membuat file menggunakan program bash dengan nama `killer.sh`.
+Pada killer.sh akan berisi kill pid() dan `rm` pada file itu sendiri
+```
+        FILE *new;
+        new = fopen("killer.sh","w");
+        fputs("#!/bin/bash\nkillall soal3\n rm killer.sh\necho \'Berhasil\'",new);
+        fclose(new);
+```
+
+### E. Pembimbing magang Ranora juga ingin nantinya program utama yang 
+dibuat Ranora dapat dijalankan di dalam dua mode. Untuk mengaktifkan mode 
+pertama, program harus dijalankan dengan argumen -z, dan Ketika dijalankan 
+dalam mode pertama, program utama akan langsung menghentikan semua operasinya 
+Ketika program Killer dijalankan. Sedangkan untuk mengaktifkan mode kedua, 
+program harus dijalankan dengan argumen -x, dan Ketika dijalankan dalam mode 
+kedua, program utama akan berhenti namun membiarkan proses di setiap direktori 
+yang masih berjalan hingga selesai (Direktori yang sudah dibuat akan mendownload 
+gambar sampai selesai dan membuat file txt, lalu zip dan delete direktori).
+
+Pada kasus ini untuk pembuatan file `killer.sh` menggunakan kondisi if else
+```
+    if(argv[1][1]=='z'){
+        FILE *new;
+        new = fopen("killer.sh","w");
+        fputs("#!/bin/bash\nkillall soal3\n rm killer.sh\necho \'Berhasil\'",new);
+        fclose(new);
+    }
+    if(argv[1][1]=='x'){ 
+        FILE *new;
+        new = fopen("killer.sh","w");
+        fputs("#!/bin/bash\nkillall -15 soal3\n rm killer.sh\necho \'Menunggu proses\'",new);
+        fclose(new);
+
+        // memberi signal dan mengisi signal jadi 0
+        signal(SIGTERM,op);
+     }
+```
+signal(SIGTERM,op) yaitu penggunaan ophran dimana proses akan dihentikan setelah 
+semua proses for dan zip dilakukan. Pada kasus ini diberikan
+```
+    if (s ==0) 
+    {
+        break;
+    }
+
+``` 
+Dimana pada akhir process akan dilakukan pengecekan. Jika s == 0 maka process akan
+berhenti.
