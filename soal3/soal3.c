@@ -57,21 +57,21 @@ void hapus(){
     }
 }
 
-void op(int signum) {
+void op(int num) {
     s = 0;
 }
 
 int main(int argc, char* argv[])
 {
     int killstatus;
-    if(argv[1][1],"z"){
+    if(argv[1][1]=='z'){
 
         FILE *new;
         new = fopen("killer.sh","w");
         fputs("#!/bin/bash\nkillall soal3\n rm killer.sh\necho \'Berhasil\'",new);
         fclose(new);
     }
-    if(argv[1][1],"x"){ 
+    if(argv[1][1]=='x'){ 
         FILE *new;
         new = fopen("killer.sh","w");
         fputs("#!/bin/bash\nkillall -15 soal3\n rm killer.sh\necho \'Menunggu proses\'",new);
