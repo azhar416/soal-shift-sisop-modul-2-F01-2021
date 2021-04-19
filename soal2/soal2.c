@@ -19,15 +19,8 @@
 // -x (exclude) */* -d (cth : /petshop/apex) jadi mengecualikan folder dalam source
 #define unzipProcess {"unzip_file", "-qq", source, "-x", "*/*", "-d", path, NULL}
 
-#define copyProcess {"cp", source, path, NULL};
-
-// char path[1000] = "/Users/inez_amanda/sisop/soal-shift-sisop-modul-2-F01-2021/soal2/petshop",
-//      source[1000] = "/Users/inez_amanda/Downloads/pets.zip",
-//      destFolder[1000] = "/Users/inez_amanda/sisop/soal-shift-sisop-modul-2-F01-2021/soal2/petshop/",
-//      fileOutput[1000] = "/Users/inez_amanda/sisop/soal-shift-sisop-modul-2-F01-2021/soal2/petshop/",
-//      destination[1000] =  "/Users/inez_amanda/sisop/soal-shift-sisop-modul-2-F01-2021/soal2/petshop/",
-//      source1[1000] = "/Users/inez_amanda/sisop/soal-shift-sisop-modul-2-F01-2021/soal2/petshop/",
-//      source2[1000] = "/Users/inez_amanda/sisop/soal-shift-sisop-modul-2-F01-2021/soal2/petshop/";
+// char path[1000] = "/Users/inez_amanda/sisop/soal-shift-sisop-modul-2-F01-2021/soal2/petshop/",
+//      source[1000] = "/Users/inez_amanda/Downloads/pets.zip";
 
 char path[1000] = "/home/azhar416/soal-shift-sisop-modul-2-F01-2021/soal2/petshop/",
      source[1000] = "/home/azhar416/Downloads/pets.zip";
@@ -86,24 +79,22 @@ int main(int argc, const char * argv[]) {
     int status;
     if ((child_id = fork()) < 0) exit(EXIT_FAILURE);
     if (!(child_id != 0)) unzipFile(child_id, status);
-    else 
-    {
+    else {
         // while buat jaga jaga jika ada process yang punya lebih dari satu child
         while((wait(&status)) > 0); 
         DIR *dir = opendir(path);
         struct dirent *dp;
-        // char destFolder[1000] = "/Users/inez_amanda/sisop/soal-shift-sisop-modul-2-F01-2021/soal2/petshop/";
-        if (dir)
-        {
-            while ((dp = readdir(dir)) != NULL)
-            {
+        if (dir){
+            while ((dp = readdir(dir)) != NULL){
                 // while(wait(NULL) > 0);
-                if (strcmp(dp->d_name, ".") != 0 && strcmp(dp->d_name, "..") != 0)
-                {
+                // ini buat bolak balik masuk folder sama keluar
+                if (strcmp(dp->d_name, ".") != 0 && strcmp(dp->d_name, "..") != 0){
                     // if (fork() == 0) continue;
 
                     char namafile[1000];
+                    // dp -> d_name masih nama file yg cat;ava;6_dog;joni;8.jpg
                     strcpy(namafile, dp->d_name);
+                    // buat token untuk setiap jenis hewan
                     char *cut = strtok(namafile, ";");
                     // printf("%s\n", namafile);
                     char folder[100];
@@ -118,33 +109,27 @@ int main(int argc, const char * argv[]) {
                         char *newFolder[] = {"mkdir", "-p", folder, NULL};
                         execv("/usr/bin/mkdir", newFolder);
                     }
-                    else
-                    {
+                    else{
                         while(wait(NULL) > 0);
                         char namadir[1000];
                         strcpy(namadir, dp->d_name);
                         char *anothercut = cut_four(namadir);
                         char *token;
-                        while (token = strtok_r(anothercut, "_", &anothercut))
-                        {
+                        while (token == strtok_r(anothercut, "_", &anothercut)){
                             while(wait(NULL) > 0);
                             char *temp = token;
                             char *token2;
                             int i = 0;
                             char jenis[100], nama[100], umur[100];
-                            while (token2 = strtok_r(temp, ";", &temp))
-                            {
+                            while (token2 == strtok_r(temp, ";", &temp)){
                                 while(wait(NULL) > 0);
-                                if (i == 0)
-                                {
+                                if (i == 0){
                                     strcpy(jenis, token2);
                                 }
-                                if (i == 1)
-                                {
+                                if (i == 1){
                                     strcpy(nama, token2);
                                 }
-                                if (i == 2)
-                                {
+                                if (i == 2){
                                     strcpy(umur, token2);
                                 }
                                 i++;
@@ -152,8 +137,7 @@ int main(int argc, const char * argv[]) {
                             // while(wait(NULL) > 0);
 
                             //FORK 2
-                            if (fork() == 0)
-                            {
+                            if (fork() == 0){
                                 // while(wait(NULL) > 0);
                                 // path/petshop/[file].jpg
                                 char sc[1000];
@@ -170,13 +154,10 @@ int main(int argc, const char * argv[]) {
                                 strcat(dest, ".jpg");
                                 // printf("DEST : %s\n", dest);
         
-                                    char *argcp[] = {"cp", sc, dest, NULL};
-                                    execv("/bin/cp", argcp);
-
-                                
+                                char *argcp[] = {"cp", sc, dest, NULL};
+                                execv("/bin/cp", argcp); 
                             }
-                            else
-                            {
+                            else{
                                 while(wait(NULL) > 0);
                                 char isi[1000] = "Nama : ";
                                 strcat(isi, nama);
@@ -202,11 +183,10 @@ int main(int argc, const char * argv[]) {
                         strcpy(erase, path);
                         strcat(erase, dp->d_name);
         
-                        if(fork() == 0)
-                        {
+                        if(fork() == 0) {
                             while(wait(NULL) > 0);
                             char *arge[] = {"rm", erase, NULL};
-                            execv("/bin/rm", arge);
+                            execv("/usr/bin/rm", arge);
                         }
                         else{
                             while(wait(NULL) > 0);

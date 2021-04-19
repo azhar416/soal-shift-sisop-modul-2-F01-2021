@@ -372,20 +372,183 @@ pada fungsi main ini setiap ingin melakukan panggilan pada fungsi, akan di fork 
 ## Soal Nomor 2
 Loba bekerja di sebuah petshop terkenal, suatu saat dia mendapatkan zip yang berisi banyak sekali foto peliharaan dan Ia diperintahkan untuk mengkategorikan foto-foto peliharaan tersebut. Loba merasa kesusahan melakukan pekerjaanya secara manual, apalagi ada kemungkinan ia akan diperintahkan untuk melakukan hal yang sama. Kamu adalah teman baik Loba dan Ia meminta bantuanmu untuk membantu pekerjaannya.
 
-(a) Pertama-tama program perlu mengextract zip yang diberikan ke dalam folder “/home/[user]/modul2/petshop”. Karena bos Loba teledor, dalam zip tersebut bisa berisi folder-folder yang tidak penting, maka program harus bisa membedakan file dan folder sehingga dapat memproses file yang seharusnya dikerjakan dan menghapus folder-folder yang tidak dibutuhkan.
-
-(b) Foto peliharaan perlu dikategorikan sesuai jenis peliharaan, maka kamu harus membuat folder untuk setiap jenis peliharaan yang ada dalam zip. Karena kamu tidak mungkin memeriksa satu-persatu, maka program harus membuatkan folder-folder yang dibutuhkan sesuai dengan isi zip.
-Contoh: Jenis peliharaan kucing akan disimpan dalam “/petshop/cat”, jenis peliharaan kura-kura akan disimpan dalam “/petshop/turtle”.
-
-(c) Setelah folder kategori berhasil dibuat, programmu akan memindahkan foto ke folder dengan kategori yang sesuai dan di rename dengan nama peliharaan.
-Contoh: “/petshop/cat/joni.jpg”. 
-
-(d) Karena dalam satu foto bisa terdapat lebih dari satu peliharaan maka foto harus di pindah ke masing-masing kategori yang sesuai. Contoh: foto dengan nama “dog;baro;1_cat;joni;2.jpg” dipindah ke folder “/petshop/cat/joni.jpg” dan “/petshop/dog/baro.jpg”.
-
-(e) Di setiap folder buatlah sebuah file "keterangan.txt" yang berisi nama dan umur semua peliharaan dalam folder tersebut. Format harus sesuai contoh.
-
 ### Penjelasan
 Soal diatas meminta untuk membuat sebuah program untuk membuat directory, mengextract sebuah zip file yang kemudian akan dipindahkan ke directory yang baru dibuat dengan format nama file yang ditentukan setelah diidentifikasi nama file nya, serta membaca dan menyimpan beberapa informasi dari nama file ke dalam sebuah file txt.
+
+Membuat fungsi rekursif untuk mengeksekusi script
+```c
+    void executeRecur (pid_t pid, int status, char script[], char *argv[]){
+    pid = fork();
+    if (!(pid != 0)) execv(script, argv);
+    else while((wait(&status)) > 0);
+}
+```
+
+### A. Pertama-tama program perlu mengextract zip yang diberikan ke dalam folder “/home/[user]/modul2/petshop”. Karena bos Loba teledor, dalam zip tersebut bisa berisi folder-folder yang tidak penting, maka program harus bisa membedakan file dan folder sehingga dapat memproses file yang seharusnya dikerjakan dan menghapus folder-folder yang tidak dibutuhkan.
+
+Fungsi dibawah ini untuk membuat direktori untuk menampung hasil extract. `-p (parent)` untuk membuat parent direktori jika dibutuhkan
+``` c
+    #define createProcess {"buat_folder", "-p", path, NULL}
+
+    void createFolder(pid_t mkdir, int status){
+    mkdir = fork();
+    if (!(mkdir != 0)) {
+        char *createNewFolder[] = createProcess;
+        executeRecur(mkdir, status, "/usr/bin/mkdir", createNewFolder);
+    }
+    while ((wait(&status)) > 0);
+}
+```
+
+Fungsi dibawah ini untuk mengunzip file yang ditentukan. Pada proses dibawah ini akan mengextract pets.zip ke dalam path tujuan namun mengecualikan folder yang tidak dibutuhkan. 
+`-q` agar tidak menampilkan output informasi yang sedang dikerjakan program.
+`-x (exclude)` */* -d (cth : ../petshop/apex) jadi mengecualikan folder dalam source untuk di-unzip
+``` c
+    #define unzipProcess {"unzip_file", "-q", source, "-x", "*/*", "-d", path, NULL}
+
+    void extractFile(pid_t extract, int status) {
+        extract = fork();
+        if (!(extract != 0)) {
+            char *extractZipFile[] = unzipProcess;
+            executeRecur(extract, status, "/usr/bin/unzip", extractZipFile);
+        }
+        while ((wait(&status)) > 0);
+    }
+```
+
+``` c
+    void unzipFile(pid_t child_id, int status){
+        child_id = fork();
+        if (!(child_id != 0)) createFolder(child_id, status); // buat folder baru di path yang ditentukan
+        else {
+            while((wait(&status)) > 0);
+            extractFile(child_id, status);
+        }
+    }
+```
+
+### B. Foto peliharaan perlu dikategorikan sesuai jenis peliharaan, maka kamu harus membuat folder untuk setiap jenis peliharaan yang ada dalam zip. Karena kamu tidak mungkin memeriksa satu-persatu, maka program harus membuatkan folder-folder yang dibutuhkan sesuai dengan isi zip. Contoh: Jenis peliharaan kucing akan disimpan dalam “/petshop/cat”, jenis peliharaan kura-kura akan disimpan dalam “/petshop/turtle”.
+
+Membuat array untuk menyimpan string jenis hewan dari setiap file yang ada dalam folder petshop dan array untuk menyimpan path file (cth : petshop/cat). Lalu nantinya akan membuat folder sesuai dengan path yang disimpan dalam array.
+``` c
+    DIR *dir = opendir(path);
+        struct dirent *dp;
+        if (dir){
+            while ((dp = readdir(dir)) != NULL){
+                // ini buat bolak balik masuk folder sama keluar
+                if (strcmp(dp->d_name, ".") != 0 && strcmp(dp->d_name, "..") != 0){
+
+                    char namafile[1000];
+                    // dp -> d_name masih nama file yg cat;ava;6_dog;joni;8.jpg
+                    strcpy(namafile, dp->d_name);
+                    // buat token untuk setiap jenis hewan
+                    char *cut = strtok(namafile, ";");
+                    char folder[100];
+                    strcpy(folder, path);
+                    strcat(folder, cut);
+
+                    // FORK 1
+                    pid_t anak = fork();
+                    if(anak<0) exit(EXIT_FAILURE);
+                    if(anak==0){
+                        char *newFolder[] = {"mkdir", "-p", folder, NULL};
+                        execv("/usr/bin/mkdir", newFolder);
+                    }
+```
+
+### C & D. Setelah folder kategori berhasil dibuat, programmu akan memindahkan foto ke folder dengan kategori yang sesuai dan di rename dengan nama peliharaan. Contoh: “/petshop/cat/joni.jpg”. Karena dalam satu foto bisa terdapat lebih dari satu peliharaan maka foto harus di pindah ke masing-masing kategori yang sesuai. Contoh: foto dengan nama “dog;baro;1_cat;joni;2.jpg” dipindah ke folder “/petshop/cat/joni.jpg” dan “/petshop/dog/baro.jpg”.
+
+Membuat fungsi untuk memotong .jpg dari nama file
+``` c
+    char* cut_four (char* s){
+    int n;
+    int i;
+    char* new;
+    for (i = 0; s[i] != '\0'; i++);
+    // length of the new string
+    n = i - 4 + 1;
+    if (n < 1)
+        return NULL;
+    new = (char*) malloc (n * sizeof(char));
+    for (i = 0; i < n - 1; i++)
+        new[i] = s[i];
+    new[i] = '\0';
+    return new;
+}
+```
+
+Memisahkan hewan yang dipisahkan dengan _ dan atribut tiap hewan dengan ;
+``` c
+    while(wait(NULL) > 0);
+    char namadir[1000];
+    strcpy(namadir, dp->d_name);
+    char *anothercut = cut_four(namadir);
+    char *token;
+    while (token = strtok_r(anothercut, "_", &anothercut)){
+    while(wait(NULL) > 0);
+    char *temp = token;
+    char *token2;
+    int i = 0;
+    char jenis[100], nama[100], umur[100];
+    while (token2 = strtok_r(temp, ";", &temp)){
+        while(wait(NULL) > 0);
+        if (i == 0){
+            strcpy(jenis, token2);
+        }
+        if (i == 1){
+            strcpy(nama, token2);
+        }
+        if (i == 2){
+            strcpy(umur, token2);
+        }
+        i++;
+    }
+```
+
+Menyalin file dari path ke destination
+``` c
+    //FORK 2
+    if (fork() == 0){
+        // path/petshop/[file].jpg
+        char sc[1000];
+        strcpy(sc, path);
+        strcat(sc, dp->d_name);
+
+        // path/petshop/[jenishewan]/[namahewan].jpg
+        char dest[1000];
+        strcpy(dest, path);
+        strcat(dest, jenis);
+        strcat(dest, "/");
+        strcat(dest, nama);
+        strcat(dest, ".jpg");
+                                
+        char *argcp[] = {"cp", sc, dest, NULL};
+        execv("/bin/cp", argcp); 
+    }
+```
+
+### E. Di setiap folder buatlah sebuah file "keterangan.txt" yang berisi nama dan umur semua peliharaan dalam folder tersebut. Format harus sesuai contoh.
+
+Membuat array untuk menampung isi file keterangan.txt dan array untuk path keterangan.txt. Menggunakan file untuk membuka keterangan.txt dan memasukkan array isi ke file tersebut.
+``` c
+    else{
+        while(wait(NULL) > 0);
+        char isi[1000] = "Nama : ";
+        strcat(isi, nama);
+        strcat(isi, "\nUmur : ");
+        strcat(isi, umur);
+        strcat(isi, " tahun\n\n");
+
+        char f[1000];
+        strcpy(f, path);
+        strcat(f, jenis);
+        strcat(f, "/keterangan.txt");
+                                
+        FILE* files = fopen(f, "a");
+        fputs(isi, files);
+        fclose(files);
+    }
+```
 
 ## Soal Nomor 3
 Ranora adalah mahasiswa Teknik Informatika yang saat ini sedang 
