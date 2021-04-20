@@ -24,7 +24,7 @@ void daemons()
     umask(0);
     sid = setsid();
     if(sid < 0) exit(EXIT_FAILURE);
-    //if((chdir("/")) < 0) exit(EXIT_FAILURE);
+    //if((chdir("/home/ricky/sisop/")) < 0) exit(EXIT_FAILURE);
     close(STDIN_FILENO);
     close(STDOUT_FILENO);
     close(STDERR_FILENO);
@@ -63,6 +63,11 @@ void op(int num) {
 
 int main(int argc, char* argv[])
 {
+    if(argc != 2 || (argv[1][1] != 'z' && argv[1][1] != 'x')) 
+    {
+        printf("Mode hanya ada -z atau -x\n");
+        exit(0);
+    }
     int killstatus;
     if(argv[1][1]=='z'){
 
@@ -83,7 +88,7 @@ int main(int argc, char* argv[])
     
     while(wait(&killstatus)>0);
 
-    int status, status1, status2, status3;
+    int status, status1, status2, status3, status4;
 
     daemons();
 
@@ -93,70 +98,67 @@ int main(int argc, char* argv[])
     {
         // 3a. Membuat mkdir dengan waktu sesuai soal
         pid_t child_id;
+        int status_id;
+        char link[50];
+        pid_t child_id2, child_id3;
         time_t s1 = time(NULL);
         struct tm* t1= localtime(&s1);
         strftime(curr, 40, "%Y-%m-%d_%H:%M:%S" , t1);
 
+        
         child_id = fork();
-        if (child_id < 0)
-        {
-            exit(0);
-        }
+        if (child_id < 0) exit(0);
         if(child_id==0)
         {
-            char *argv[] = {"mkdir", curr, NULL};
-            execv("/bin/mkdir", argv);
-        }
-
-        //3b download 10 foto dengan ukuran yang sudah ditentukan
-        while(wait(&status1)>0);
-        int status_id;
-        char link[50];
-        pid_t child_id2, child_id3;
-        child_id2 = fork();
-        if(child_id2<0)
-        {
-            exit(0);
-        }
-        if(child_id2 == 0)
-        {
-            if(argv[1][1] == 'z') prctl(PR_SET_PDEATHSIG, SIGHUP);
-            chdir(curr);
-            for(int i=0;i<10;i++){
-                time_t s2 = time(NULL);
-                struct tm* t2= localtime(&s2);
-                strftime(curr2, 40, "%Y-%m-%d_%H:%M:%S", t2);
-                sprintf(link , "https://picsum.photos/%ld", (s2 % 1000) + 50);
-                
-                child_id3 = fork();
-                if(child_id3<0)
-                {
-                    exit(0);
-                }
-                if(child_id3==0)
-                {
-                    char *argv[]= {"wget", link, "-O", curr2, "-o", "/dev/null", NULL};
-                    execv("/usr/bin/wget", argv);
-                }
-                sleep(5);
+            if(fork()==0){
+                char *argv[] = {"mkdir", curr, NULL};
+                execv("/bin/mkdir", argv);
             }
+            else{
+                //3b download 10 foto dengan ukuran yang sudah ditentukan
+                while(wait(&status1)>0);
 
-            while(wait(&status_id)>0);
-            char str_message[100] = "Download Success";
-
-            //3c. Caesar cipher shift 5
-            for(int j = 0; str_message[j] != '\0'; ++j)
-            {
-                char ch = str_message[j];
-
-                if(ch >= 'a' && ch <= 'z')
+                child_id2 = fork();
+                if(child_id2<0) exit(0);
+                if(child_id2 == 0)
                 {
-                    ch = ch + 5;
-                    if(ch > 'z')
+                //if(argv[1][1] == 'z') prctl(PR_SET_PDEATHSIG, SIGHUP);
+                chdir(curr);
+                for(int i=0;i<10;i++){
+                    time_t s2 = time(NULL);
+                    struct tm* t2= localtime(&s2);
+                    strftime(curr2, 40, "%Y-%m-%d_%H:%M:%S", t2);
+                    sprintf(link , "https://picsum.photos/%ld", (s2 % 1000) + 50);
+
+                    child_id3 = fork();
+                    if(child_id3<0)
                     {
-                        ch = ch - 'z' + 'a' - 1;
+                        exit(0);
                     }
-                    str_message[j] = ch;
+                    if(child_id3==0)
+                    {
+                        char *argv[]= {"wget", link, "-O", curr2, "-o", "/dev/null", NULL};
+                        execv("/usr/bin/wget", argv);
+                    }
+                    sleep(5);
+                }
+
+                while(wait(&status_id)>0);
+                char str_message[100] = "Download Success";
+
+                //3c. Caesar cipher shift 5
+                for(int j = 0; str_message[j] != '\0'; ++j)
+                {
+                    char ch = str_message[j];
+
+                    if(ch >= 'a' && ch <= 'z')
+                    {
+                        ch = ch + 5;
+                        if(ch > 'z')
+                        {
+                            ch = ch - 'z' + 'a' - 1;
+                        }
+                        str_message[j] = ch;
                 }
 
                 else if(ch >= 'A' && ch <= 'Z')
@@ -174,16 +176,21 @@ int main(int argc, char* argv[])
             fprintf(caesarc,"%s",str_message);
             fclose(caesarc);
 
-            while(wait(&status2)>0);
-            zipmode();
+                while(wait(&status2)>0);
+                zipmode();
 
-            while(wait(&status3) > 0);
-            hapus();
+                while(wait(&status3) > 0);
+                hapus();
+            }
+            //cek signal
+            if (s ==0) {
+                break;
+            }
+            }
         }
-        //cek signal
-        if (s ==0) {
-            break;
-        }
+
+        
+        //while(wait(&status1)>0);
         sleep(40);
     }
 }
