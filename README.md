@@ -588,6 +588,8 @@ s = 1;
     }
 ```
 
+![](images/soal3/github-3a.png)
+
 ### B. Setiap direktori yang sudah dibuat diisi dengan 10 gambar yang didownload dari https://picsum.photos/, dimana setiap gambar akandidownload setiap 5 detik. Setiap gambar yang didownload akan diberi nama dengan format timestamp [YYYY-mm-dd_HH:ii:ss] dan gambar tersebut berbentuk persegi dengan ukuran (n%1000) + 50 pixel dimana n adalah detik Epoch Unix.
 
 Pada kasus ini akan mendownload 10 foto menggunakan looping `for`
