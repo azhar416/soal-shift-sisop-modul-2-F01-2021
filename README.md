@@ -747,7 +747,7 @@ Dimana pada akhir process akan dilakukan pengecekan. Jika s == 0 maka process ak
 berhenti.
 
 Pada proses `-z`
-![](images/soal3/31.png)
+![](images/soal3/3e1.png)
 
 Pada proses `-x`
 ![](images/soal3/3e2.png)
