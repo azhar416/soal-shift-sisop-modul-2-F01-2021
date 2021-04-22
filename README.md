@@ -617,6 +617,8 @@ chdir(curr);
                 sleep(5);
             }
 ```
+Pada dokumentasi yang didapat sudah masuk dalam bentuk folder zip
+![](images/soal3/3b.png)
 
 ### C. Setelah direktori telah terisi dengan 10 gambar, program tersebut akan membuat sebuah file “status.txt”, dimana didalamnya berisi pesan “Download Success” yang terenkripsi dengan teknik Caesar Cipher dan denganshift 5. Caesar Cipher adalah Teknik enkripsi sederhana yang dimana dapat melakukan enkripsi string sesuai dengan shift/key yang kita tentukan. Misal huruf “A” akan dienkripsi dengan shift 4 maka akan menjadi “E”. Karena Ranora orangnya perfeksionis dan rapi, dia ingin setelah file tersebut dibuat, direktori akan di zip dan direktori akan didelete, sehingga menyisakan hanya file zip saja.
 
@@ -656,6 +658,12 @@ char str_message[100] = "Download Success";
             fprintf(caesarc,"%s",str_message);
             fclose(caesarc);
 ```
+
+Berikut hasil dari Caesar Cipher.
+![](images/soal3/3c1.png)
+
+Untuk kendala dalam percobaan yaitu data yang ditampikan tidak sesuai dengan kaidah Caesar Cipher.
+
 Setelah itu semua foto beserta status.txt akan dibuat zip dan direktori akan
 terhapus.Berikut implementasi nya
 ```
@@ -689,6 +697,7 @@ void hapus(){
     }
 }
 ```
+![](images/soal3/3c2.png)
 
 ### D. Untuk mempermudah pengendalian program, pembimbing magang Ranora ingin program tersebut akan men-generate sebuah program “Killer” yang executable, dimana program tersebut akan menterminasi semua proses program yang sedang berjalan dan akan menghapus dirinya sendiri setelah program dijalankan. Karena Ranora menyukai sesuatu hal yang baru, maka Ranora memiliki ide untuk program “Killer” yang dibuat nantinya harus merupakan program bash.
 
@@ -700,6 +709,10 @@ Pada killer.sh akan berisi kill pid() dan `rm` pada file itu sendiri
         fputs("#!/bin/bash\nkillall soal3\n rm killer.sh\necho \'Berhasil\'",new);
         fclose(new);
 ```
+
+![](images/soal3/3d1.png)
+Setelah melakukan bash `killer.sh`program akan berhenti secara sendirinya dan tidak `killer.sh` akan terhapus
+![](images/soal3/3d2.png)
 
 ### E. Pembimbing magang Ranora juga ingin nantinya program utama yang dibuat Ranora dapat dijalankan di dalam dua mode. Untuk mengaktifkan mode pertama, program harus dijalankan dengan argumen -z, dan Ketika dijalankan dalam mode pertama, program utama akan langsung menghentikan semua operasinya Ketika program Killer dijalankan. Sedangkan untuk mengaktifkan mode kedua, program harus dijalankan dengan argumen -x, dan Ketika dijalankan dalam mode kedua, program utama akan berhenti namun membiarkan proses di setiap direktori yang masih berjalan hingga selesai (Direktori yang sudah dibuat akan mendownload gambar sampai selesai dan membuat file txt, lalu zip dan delete direktori).
 
@@ -732,3 +745,9 @@ semua proses for dan zip dilakukan. Pada kasus ini diberikan
 ``` 
 Dimana pada akhir process akan dilakukan pengecekan. Jika s == 0 maka process akan
 berhenti.
+
+Pada proses `-z`
+![](images/soal3/31.png)
+
+Pada proses `-x`
+![](images/soal3/3e2.png)
