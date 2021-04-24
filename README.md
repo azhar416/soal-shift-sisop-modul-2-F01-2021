@@ -479,10 +479,10 @@ Membuat fungsi untuk memotong .jpg dari nama file
 
 Memisahkan hewan yang dipisahkan dengan _ dan atribut tiap hewan dengan ; .
 Dalam setiap iterasi pembacaan string dengan pemisah ; akan dilakukan penyimpanan atribut hewan dalam array yang ditentukan.
-*String nama file => jenisHewan;nama;umur
-*Untuk i=0 maka akan menyimpan jenis hewan didalam array jenis
-*Untuk i=1 maka akan menyimpan nawa hewan didalam array nama
-*Untuk i=2 maka akan menyimpan umur hewan didalam array umur
+* String nama file => jenisHewan;nama;umur
+* Untuk i=0 maka akan menyimpan jenis hewan didalam array jenis
+* Untuk i=1 maka akan menyimpan nawa hewan didalam array nama
+* Untuk i=2 maka akan menyimpan umur hewan didalam array umur
 ``` c
     while(wait(NULL) > 0);
     char namadir[1000];
