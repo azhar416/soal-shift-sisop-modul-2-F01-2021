@@ -17,7 +17,7 @@
 // -p (parent) buat parent direktori jika dibutuhkan, klo sudah ada aman kok
 #define createProcess {"buat_folder", "-p", path, NULL}
 // -x (exclude) */* -d (cth : /petshop/apex) jadi mengecualikan folder dalam source
-#define unzipProcess {"unzip_file", "-qq", source, "-x", "*/*", "-d", path, NULL}
+#define unzipProcess {"unzip_file", "-qq", source, "-x", "*/*", "-d", path, NULL};
 
 #define copyProcess {"cp", source, path, NULL};
 
@@ -170,8 +170,8 @@ int main(int argc, const char * argv[]) {
                                 strcat(dest, ".jpg");
                                 // printf("DEST : %s\n", dest);
         
-                                    char *argcp[] = {"cp", sc, dest, NULL};
-                                    execv("/bin/cp", argcp);
+                                char *argcp[] = {"cp", sc, dest, NULL};
+                                execv("/bin/cp", argcp);
 
                                 
                             }
