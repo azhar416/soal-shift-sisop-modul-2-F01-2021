@@ -369,6 +369,18 @@ int main()
 ```
 pada fungsi main ini setiap ingin melakukan panggilan pada fungsi, akan di fork terlebih dahulu agar program tidak terminate. untuk daemonnya sendiri kami menggunakan template dari github agar dapat berjalan terus pada background.
 
+## untuk hasilnya
+pada jam 16:22 akan secara otomatis melakukan apa yg diperintahkan oleh soal a - d.
+![](images/soal1/3folder.png)
+
+untuk isinya, 
+![](images/soal1/fylm.png)
+![](images/soal1/pyoto.png)
+![](images/soal1/myusik.png)
+
+saat waktu ulang tahun, tepatnya 22:22,
+![](images/soal1/ultah.png)
+
 ## Soal Nomor 2
 Loba bekerja di sebuah petshop terkenal, suatu saat dia mendapatkan zip yang berisi banyak sekali foto peliharaan dan Ia diperintahkan untuk mengkategorikan foto-foto peliharaan tersebut. Loba merasa kesusahan melakukan pekerjaanya secara manual, apalagi ada kemungkinan ia akan diperintahkan untuk melakukan hal yang sama. Kamu adalah teman baik Loba dan Ia meminta bantuanmu untuk membantu pekerjaannya.
 
@@ -376,7 +388,7 @@ Loba bekerja di sebuah petshop terkenal, suatu saat dia mendapatkan zip yang ber
 Soal diatas meminta untuk membuat sebuah program untuk membuat directory, mengextract sebuah zip file yang kemudian akan dipindahkan ke directory yang baru dibuat dengan format nama file yang ditentukan setelah diidentifikasi nama file nya, serta membaca dan menyimpan beberapa informasi dari nama file ke dalam sebuah file txt.
 
 Membuat fungsi rekursif untuk mengeksekusi script
-```c
+```C++
     void executeRecur (pid_t pid, int status, char script[], char *argv[]){
     pid = fork();
     if (!(pid != 0)) execv(script, argv);
@@ -387,7 +399,7 @@ Membuat fungsi rekursif untuk mengeksekusi script
 ### A. Pertama-tama program perlu mengextract zip yang diberikan ke dalam folder “/home/[user]/modul2/petshop”. Karena bos Loba teledor, dalam zip tersebut bisa berisi folder-folder yang tidak penting, maka program harus bisa membedakan file dan folder sehingga dapat memproses file yang seharusnya dikerjakan dan menghapus folder-folder yang tidak dibutuhkan.
 
 Fungsi dibawah ini untuk membuat direktori untuk menampung hasil extract. `-p (parent)` untuk membuat parent direktori jika dibutuhkan
-``` c
+``` C++
     #define createProcess {"buat_folder", "-p", path, NULL}
 
     void createFolder(pid_t mkdir, int status){
@@ -403,7 +415,7 @@ Fungsi dibawah ini untuk membuat direktori untuk menampung hasil extract. `-p (p
 Fungsi dibawah ini untuk mengunzip file yang ditentukan. Pada proses dibawah ini akan mengextract pets.zip ke dalam path tujuan namun mengecualikan folder yang tidak dibutuhkan. 
 `-q` agar tidak menampilkan output informasi yang sedang dikerjakan program.
 `-x (exclude)` */* -d (cth : ../petshop/apex) jadi mengecualikan folder dalam source untuk di-unzip
-``` c
+``` C++
     #define unzipProcess {"unzip_file", "-q", source, "-x", "*/*", "-d", path, NULL}
 
     void extractFile(pid_t extract, int status) {
@@ -416,7 +428,7 @@ Fungsi dibawah ini untuk mengunzip file yang ditentukan. Pada proses dibawah ini
     }
 ```
 
-``` c
+``` C++
     void unzipFile(pid_t child_id, int status){
         child_id = fork();
         if (!(child_id != 0)) createFolder(child_id, status); // buat folder baru di path yang ditentukan
@@ -430,7 +442,7 @@ Fungsi dibawah ini untuk mengunzip file yang ditentukan. Pada proses dibawah ini
 ### B. Foto peliharaan perlu dikategorikan sesuai jenis peliharaan, maka kamu harus membuat folder untuk setiap jenis peliharaan yang ada dalam zip. Karena kamu tidak mungkin memeriksa satu-persatu, maka program harus membuatkan folder-folder yang dibutuhkan sesuai dengan isi zip. Contoh: Jenis peliharaan kucing akan disimpan dalam “/petshop/cat”, jenis peliharaan kura-kura akan disimpan dalam “/petshop/turtle”.
 
 Membuat array untuk menyimpan string jenis hewan dari setiap file yang ada dalam folder petshop dan array untuk menyimpan path file (cth : petshop/cat). Lalu nantinya akan membuat folder sesuai dengan path yang disimpan dalam array.
-``` c
+``` C++
     DIR *dir = opendir(path);
         struct dirent *dp;
         if (dir){
@@ -459,7 +471,7 @@ Membuat array untuk menyimpan string jenis hewan dari setiap file yang ada dalam
 ### C & D. Setelah folder kategori berhasil dibuat, programmu akan memindahkan foto ke folder dengan kategori yang sesuai dan di rename dengan nama peliharaan. Contoh: “/petshop/cat/joni.jpg”. Karena dalam satu foto bisa terdapat lebih dari satu peliharaan maka foto harus di pindah ke masing-masing kategori yang sesuai. Contoh: foto dengan nama “dog;baro;1_cat;joni;2.jpg” dipindah ke folder “/petshop/cat/joni.jpg” dan “/petshop/dog/baro.jpg”.
 
 Membuat fungsi untuk memotong .jpg dari nama file
-``` c
+``` C++
     char* cut_four (char* s){
     int n;
     int i;
@@ -483,7 +495,7 @@ Dalam setiap iterasi pembacaan string dengan pemisah ; akan dilakukan penyimpana
 * Untuk i=0 maka akan menyimpan jenis hewan didalam array jenis
 * Untuk i=1 maka akan menyimpan nawa hewan didalam array nama
 * Untuk i=2 maka akan menyimpan umur hewan didalam array umur
-``` c
+``` C++
     while(wait(NULL) > 0);
     char namadir[1000];
     strcpy(namadir, dp->d_name);
@@ -511,7 +523,7 @@ Dalam setiap iterasi pembacaan string dengan pemisah ; akan dilakukan penyimpana
 ```
 
 Menyalin file dari path ke destination
-``` c
+``` c++
     //FORK 2
     if (fork() == 0){
         // path/petshop/[file].jpg
@@ -535,7 +547,7 @@ Menyalin file dari path ke destination
 ### E. Di setiap folder buatlah sebuah file "keterangan.txt" yang berisi nama dan umur semua peliharaan dalam folder tersebut. Format harus sesuai contoh.
 
 Membuat array untuk menampung isi file keterangan.txt dan array untuk path keterangan.txt. Menggunakan file untuk membuka keterangan.txt dan memasukkan array isi ke file tersebut.
-``` c
+``` c++
     else{
         while(wait(NULL) > 0);
         char isi[1000] = "Nama : ";
@@ -555,6 +567,19 @@ Membuat array untuk menampung isi file keterangan.txt dan array untuk path keter
     }
 ```
 
+## untuk hasilnya
+source zip
+![](images/soal2/source.png)
+
+isi folder petshop
+![](images/soal2/hasilfolder.png)
+
+untuk image yang duplicate
+![](images/soal2/image_dupe.png)
+
+untuk `keterangan.txt`
+![](images/soal2/keterangan.png)
+
 ## Soal Nomor 3
 Ranora adalah mahasiswa Teknik Informatika yang saat ini sedang 
 menjalani magang di perusahan ternama yang bernama “FakeKos Corp.”
@@ -569,7 +594,7 @@ Pada kasus ini menggunakan fungsi `strftime` dan menggunakan `fork`
 dan `execv` untuk membuat directory. Selang waktu yang diberikan
 yaitu 40 detik maka `sleep(40)`.
 
-```
+```C++
 s = 1;
     while(s)
     {
@@ -601,7 +626,7 @@ Pada kasus ini akan mendownload 10 foto menggunakan looping `for`
 untuk jeda `sleep(5)`. Penamaan file menggunakan waktu dan memakai 
 `strftime`. 
 
-```
+```C++
 chdir(curr);
             for(int i=0;i<10;i++){
                 time_t s2 = time(NULL);
@@ -630,7 +655,7 @@ Pada dokumentasi yang didapat sudah masuk dalam bentuk folder zip
 Ada 2 kasus yang pertama yaitu setelah melakukan proses `download` akan membuat 
 status.txt dimana akan menampilkan hasil `Download Success` dengan menggunakan
 Caesar Cipher Shift 5
-```
+```C++
 char str_message[100] = "Download Success";
 
             //3c. Caesar cipher shift 5
@@ -671,7 +696,7 @@ Untuk kendala dalam percobaan yaitu data yang ditampikan tidak sesuai dengan kai
 
 Setelah itu semua foto beserta status.txt akan dibuat zip dan direktori akan
 terhapus.Berikut implementasi nya
-```
+```C++
 void zipmode()
 {
     pid_t child_id4;
@@ -690,7 +715,7 @@ void zipmode()
 ```
 
 Untuk menghapus direktori
-```
+```C++
 void hapus(){
     pid_t child_id5;
     child_id5 = fork();
@@ -708,7 +733,7 @@ void hapus(){
 
 Pada proses ini akan membuat file menggunakan program bash dengan nama `killer.sh`.
 Pada killer.sh akan berisi kill pid() dan `rm` pada file itu sendiri
-```
+```C++
         FILE *new;
         new = fopen("killer.sh","w");
         fputs("#!/bin/bash\nkillall soal3\n rm killer.sh\necho \'Berhasil\'",new);
@@ -722,7 +747,7 @@ Setelah melakukan bash `killer.sh`program akan berhenti secara sendirinya dan ti
 ### E. Pembimbing magang Ranora juga ingin nantinya program utama yang dibuat Ranora dapat dijalankan di dalam dua mode. Untuk mengaktifkan mode pertama, program harus dijalankan dengan argumen -z, dan Ketika dijalankan dalam mode pertama, program utama akan langsung menghentikan semua operasinya Ketika program Killer dijalankan. Sedangkan untuk mengaktifkan mode kedua, program harus dijalankan dengan argumen -x, dan Ketika dijalankan dalam mode kedua, program utama akan berhenti namun membiarkan proses di setiap direktori yang masih berjalan hingga selesai (Direktori yang sudah dibuat akan mendownload gambar sampai selesai dan membuat file txt, lalu zip dan delete direktori).
 
 Pada kasus ini untuk pembuatan file `killer.sh` menggunakan kondisi if else
-```
+```C++
     if(argv[1][1]=='z'){
         FILE *new;
         new = fopen("killer.sh","w");
@@ -741,7 +766,7 @@ Pada kasus ini untuk pembuatan file `killer.sh` menggunakan kondisi if else
 ```
 signal(SIGTERM,op) yaitu penggunaan ophran dimana proses akan dihentikan setelah 
 semua proses for dan zip dilakukan. Pada kasus ini diberikan
-```
+```C++
     if (s ==0) 
     {
         break;
