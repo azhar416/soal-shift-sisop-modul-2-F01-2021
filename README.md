@@ -3,7 +3,7 @@
 ## Source Code
 - [Soal 1](https://github.com/azhar416/soal-shift-sisop-modul-2-F01-2021/blob/main/soal1/soal1.c)
 - [Soal 2](https://github.com/azhar416/soal-shift-sisop-modul-2-F01-2021/blob/main/soal2/soal2.c)
-- [Soal 3]()
+- [Soal 3](https://github.com/azhar416/soal-shift-sisop-modul-2-F01-2021/blob/main/soal2/soal3.c)
 
 ## Soal Nomor 1
 Pada suatu masa, hiduplah seorang Steven yang hidupnya pas-pasan. Steven punya pacar, namun sudah putus sebelum pacaran. Ketika dia galau memikirkan mantan, ia selalu menonton https://www.youtube.com/watch?v=568DH_9CMKI untuk menghilangkan kesedihannya. 
@@ -372,20 +372,188 @@ pada fungsi main ini setiap ingin melakukan panggilan pada fungsi, akan di fork 
 ## Soal Nomor 2
 Loba bekerja di sebuah petshop terkenal, suatu saat dia mendapatkan zip yang berisi banyak sekali foto peliharaan dan Ia diperintahkan untuk mengkategorikan foto-foto peliharaan tersebut. Loba merasa kesusahan melakukan pekerjaanya secara manual, apalagi ada kemungkinan ia akan diperintahkan untuk melakukan hal yang sama. Kamu adalah teman baik Loba dan Ia meminta bantuanmu untuk membantu pekerjaannya.
 
-(a) Pertama-tama program perlu mengextract zip yang diberikan ke dalam folder “/home/[user]/modul2/petshop”. Karena bos Loba teledor, dalam zip tersebut bisa berisi folder-folder yang tidak penting, maka program harus bisa membedakan file dan folder sehingga dapat memproses file yang seharusnya dikerjakan dan menghapus folder-folder yang tidak dibutuhkan.
-
-(b) Foto peliharaan perlu dikategorikan sesuai jenis peliharaan, maka kamu harus membuat folder untuk setiap jenis peliharaan yang ada dalam zip. Karena kamu tidak mungkin memeriksa satu-persatu, maka program harus membuatkan folder-folder yang dibutuhkan sesuai dengan isi zip.
-Contoh: Jenis peliharaan kucing akan disimpan dalam “/petshop/cat”, jenis peliharaan kura-kura akan disimpan dalam “/petshop/turtle”.
-
-(c) Setelah folder kategori berhasil dibuat, programmu akan memindahkan foto ke folder dengan kategori yang sesuai dan di rename dengan nama peliharaan.
-Contoh: “/petshop/cat/joni.jpg”. 
-
-(d) Karena dalam satu foto bisa terdapat lebih dari satu peliharaan maka foto harus di pindah ke masing-masing kategori yang sesuai. Contoh: foto dengan nama “dog;baro;1_cat;joni;2.jpg” dipindah ke folder “/petshop/cat/joni.jpg” dan “/petshop/dog/baro.jpg”.
-
-(e) Di setiap folder buatlah sebuah file "keterangan.txt" yang berisi nama dan umur semua peliharaan dalam folder tersebut. Format harus sesuai contoh.
-
 ### Penjelasan
 Soal diatas meminta untuk membuat sebuah program untuk membuat directory, mengextract sebuah zip file yang kemudian akan dipindahkan ke directory yang baru dibuat dengan format nama file yang ditentukan setelah diidentifikasi nama file nya, serta membaca dan menyimpan beberapa informasi dari nama file ke dalam sebuah file txt.
+
+Membuat fungsi rekursif untuk mengeksekusi script
+```c
+    void executeRecur (pid_t pid, int status, char script[], char *argv[]){
+    pid = fork();
+    if (!(pid != 0)) execv(script, argv);
+    else while((wait(&status)) > 0);
+}
+```
+
+### A. Pertama-tama program perlu mengextract zip yang diberikan ke dalam folder “/home/[user]/modul2/petshop”. Karena bos Loba teledor, dalam zip tersebut bisa berisi folder-folder yang tidak penting, maka program harus bisa membedakan file dan folder sehingga dapat memproses file yang seharusnya dikerjakan dan menghapus folder-folder yang tidak dibutuhkan.
+
+Fungsi dibawah ini untuk membuat direktori untuk menampung hasil extract. `-p (parent)` untuk membuat parent direktori jika dibutuhkan
+``` c
+    #define createProcess {"buat_folder", "-p", path, NULL}
+
+    void createFolder(pid_t mkdir, int status){
+    mkdir = fork();
+    if (!(mkdir != 0)) {
+        char *createNewFolder[] = createProcess;
+        executeRecur(mkdir, status, "/usr/bin/mkdir", createNewFolder);
+    }
+    while ((wait(&status)) > 0);
+}
+```
+
+Fungsi dibawah ini untuk mengunzip file yang ditentukan. Pada proses dibawah ini akan mengextract pets.zip ke dalam path tujuan namun mengecualikan folder yang tidak dibutuhkan. 
+`-q` agar tidak menampilkan output informasi yang sedang dikerjakan program.
+`-x (exclude)` */* -d (cth : ../petshop/apex) jadi mengecualikan folder dalam source untuk di-unzip
+``` c
+    #define unzipProcess {"unzip_file", "-q", source, "-x", "*/*", "-d", path, NULL}
+
+    void extractFile(pid_t extract, int status) {
+        extract = fork();
+        if (!(extract != 0)) {
+            char *extractZipFile[] = unzipProcess;
+            executeRecur(extract, status, "/usr/bin/unzip", extractZipFile);
+        }
+        while ((wait(&status)) > 0);
+    }
+```
+
+``` c
+    void unzipFile(pid_t child_id, int status){
+        child_id = fork();
+        if (!(child_id != 0)) createFolder(child_id, status); // buat folder baru di path yang ditentukan
+        else {
+            while((wait(&status)) > 0);
+            extractFile(child_id, status);
+        }
+    }
+```
+
+### B. Foto peliharaan perlu dikategorikan sesuai jenis peliharaan, maka kamu harus membuat folder untuk setiap jenis peliharaan yang ada dalam zip. Karena kamu tidak mungkin memeriksa satu-persatu, maka program harus membuatkan folder-folder yang dibutuhkan sesuai dengan isi zip. Contoh: Jenis peliharaan kucing akan disimpan dalam “/petshop/cat”, jenis peliharaan kura-kura akan disimpan dalam “/petshop/turtle”.
+
+Membuat array untuk menyimpan string jenis hewan dari setiap file yang ada dalam folder petshop dan array untuk menyimpan path file (cth : petshop/cat). Lalu nantinya akan membuat folder sesuai dengan path yang disimpan dalam array.
+``` c
+    DIR *dir = opendir(path);
+        struct dirent *dp;
+        if (dir){
+            while ((dp = readdir(dir)) != NULL){
+                // ini buat bolak balik masuk folder sama keluar
+                if (strcmp(dp->d_name, ".") != 0 && strcmp(dp->d_name, "..") != 0){
+
+                    char namafile[1000];
+                    // dp -> d_name masih nama file yg cat;ava;6_dog;joni;8.jpg
+                    strcpy(namafile, dp->d_name);
+                    // buat token untuk setiap jenis hewan
+                    char *cut = strtok(namafile, ";");
+                    char folder[100];
+                    strcpy(folder, path);
+                    strcat(folder, cut);
+
+                    // FORK 1
+                    pid_t anak = fork();
+                    if(anak<0) exit(EXIT_FAILURE);
+                    if(anak==0){
+                        char *newFolder[] = {"mkdir", "-p", folder, NULL};
+                        execv("/usr/bin/mkdir", newFolder);
+                    }
+```
+
+### C & D. Setelah folder kategori berhasil dibuat, programmu akan memindahkan foto ke folder dengan kategori yang sesuai dan di rename dengan nama peliharaan. Contoh: “/petshop/cat/joni.jpg”. Karena dalam satu foto bisa terdapat lebih dari satu peliharaan maka foto harus di pindah ke masing-masing kategori yang sesuai. Contoh: foto dengan nama “dog;baro;1_cat;joni;2.jpg” dipindah ke folder “/petshop/cat/joni.jpg” dan “/petshop/dog/baro.jpg”.
+
+Membuat fungsi untuk memotong .jpg dari nama file
+``` c
+    char* cut_four (char* s){
+    int n;
+    int i;
+    char* new;
+    for (i = 0; s[i] != '\0'; i++);
+    // length of the new string
+    n = i - 4 + 1;
+    if (n < 1)
+        return NULL;
+    new = (char*) malloc (n * sizeof(char));
+    for (i = 0; i < n - 1; i++)
+        new[i] = s[i];
+    new[i] = '\0';
+    return new;
+}
+```
+
+Memisahkan hewan yang dipisahkan dengan _ dan atribut tiap hewan dengan ; .
+Dalam setiap iterasi pembacaan string dengan pemisah ; akan dilakukan penyimpanan atribut hewan dalam array yang ditentukan.
+* String nama file => jenisHewan;nama;umur
+* Untuk i=0 maka akan menyimpan jenis hewan didalam array jenis
+* Untuk i=1 maka akan menyimpan nawa hewan didalam array nama
+* Untuk i=2 maka akan menyimpan umur hewan didalam array umur
+``` c
+    while(wait(NULL) > 0);
+    char namadir[1000];
+    strcpy(namadir, dp->d_name);
+    char *anothercut = cut_four(namadir);
+    char *token;
+    while (token = strtok_r(anothercut, "_", &anothercut)){
+    while(wait(NULL) > 0);
+    char *temp = token;
+    char *token2;
+    int i = 0;
+    char jenis[100], nama[100], umur[100];
+    while (token2 = strtok_r(temp, ";", &temp)){
+        while(wait(NULL) > 0);
+        if (i == 0){
+            strcpy(jenis, token2);
+        }
+        if (i == 1){
+            strcpy(nama, token2);
+        }
+        if (i == 2){
+            strcpy(umur, token2);
+        }
+        i++;
+    }
+```
+
+Menyalin file dari path ke destination
+``` c
+    //FORK 2
+    if (fork() == 0){
+        // path/petshop/[file].jpg
+        char sc[1000];
+        strcpy(sc, path);
+        strcat(sc, dp->d_name);
+
+        // path/petshop/[jenishewan]/[namahewan].jpg
+        char dest[1000];
+        strcpy(dest, path);
+        strcat(dest, jenis);
+        strcat(dest, "/");
+        strcat(dest, nama);
+        strcat(dest, ".jpg");
+                                
+        char *argcp[] = {"cp", sc, dest, NULL};
+        execv("/bin/cp", argcp); 
+    }
+```
+
+### E. Di setiap folder buatlah sebuah file "keterangan.txt" yang berisi nama dan umur semua peliharaan dalam folder tersebut. Format harus sesuai contoh.
+
+Membuat array untuk menampung isi file keterangan.txt dan array untuk path keterangan.txt. Menggunakan file untuk membuka keterangan.txt dan memasukkan array isi ke file tersebut.
+``` c
+    else{
+        while(wait(NULL) > 0);
+        char isi[1000] = "Nama : ";
+        strcat(isi, nama);
+        strcat(isi, "\nUmur : ");
+        strcat(isi, umur);
+        strcat(isi, " tahun\n\n");
+
+        char f[1000];
+        strcpy(f, path);
+        strcat(f, jenis);
+        strcat(f, "/keterangan.txt");
+                                
+        FILE* files = fopen(f, "a");
+        fputs(isi, files);
+        fclose(files);
+    }
+```
 
 ## Soal Nomor 3
 Ranora adalah mahasiswa Teknik Informatika yang saat ini sedang 
@@ -425,6 +593,8 @@ s = 1;
     }
 ```
 
+![](images/soal3/3a.png)
+
 ### B. Setiap direktori yang sudah dibuat diisi dengan 10 gambar yang didownload dari https://picsum.photos/, dimana setiap gambar akandidownload setiap 5 detik. Setiap gambar yang didownload akan diberi nama dengan format timestamp [YYYY-mm-dd_HH:ii:ss] dan gambar tersebut berbentuk persegi dengan ukuran (n%1000) + 50 pixel dimana n adalah detik Epoch Unix.
 
 Pada kasus ini akan mendownload 10 foto menggunakan looping `for`
@@ -452,6 +622,8 @@ chdir(curr);
                 sleep(5);
             }
 ```
+Pada dokumentasi yang didapat sudah masuk dalam bentuk folder zip
+![](images/soal3/3b.png)
 
 ### C. Setelah direktori telah terisi dengan 10 gambar, program tersebut akan membuat sebuah file “status.txt”, dimana didalamnya berisi pesan “Download Success” yang terenkripsi dengan teknik Caesar Cipher dan denganshift 5. Caesar Cipher adalah Teknik enkripsi sederhana yang dimana dapat melakukan enkripsi string sesuai dengan shift/key yang kita tentukan. Misal huruf “A” akan dienkripsi dengan shift 4 maka akan menjadi “E”. Karena Ranora orangnya perfeksionis dan rapi, dia ingin setelah file tersebut dibuat, direktori akan di zip dan direktori akan didelete, sehingga menyisakan hanya file zip saja.
 
@@ -491,6 +663,12 @@ char str_message[100] = "Download Success";
             fprintf(caesarc,"%s",str_message);
             fclose(caesarc);
 ```
+
+Berikut hasil dari Caesar Cipher.
+![](images/soal3/3c1.png)
+
+Untuk kendala dalam percobaan yaitu data yang ditampikan tidak sesuai dengan kaidah Caesar Cipher.
+
 Setelah itu semua foto beserta status.txt akan dibuat zip dan direktori akan
 terhapus.Berikut implementasi nya
 ```
@@ -524,6 +702,7 @@ void hapus(){
     }
 }
 ```
+![](images/soal3/3c2.png)
 
 ### D. Untuk mempermudah pengendalian program, pembimbing magang Ranora ingin program tersebut akan men-generate sebuah program “Killer” yang executable, dimana program tersebut akan menterminasi semua proses program yang sedang berjalan dan akan menghapus dirinya sendiri setelah program dijalankan. Karena Ranora menyukai sesuatu hal yang baru, maka Ranora memiliki ide untuk program “Killer” yang dibuat nantinya harus merupakan program bash.
 
@@ -535,6 +714,10 @@ Pada killer.sh akan berisi kill pid() dan `rm` pada file itu sendiri
         fputs("#!/bin/bash\nkillall soal3\n rm killer.sh\necho \'Berhasil\'",new);
         fclose(new);
 ```
+
+![](images/soal3/3d1.png)
+Setelah melakukan bash `killer.sh`program akan berhenti secara sendirinya dan tidak `killer.sh` akan terhapus
+![](images/soal3/3d2.png)
 
 ### E. Pembimbing magang Ranora juga ingin nantinya program utama yang dibuat Ranora dapat dijalankan di dalam dua mode. Untuk mengaktifkan mode pertama, program harus dijalankan dengan argumen -z, dan Ketika dijalankan dalam mode pertama, program utama akan langsung menghentikan semua operasinya Ketika program Killer dijalankan. Sedangkan untuk mengaktifkan mode kedua, program harus dijalankan dengan argumen -x, dan Ketika dijalankan dalam mode kedua, program utama akan berhenti namun membiarkan proses di setiap direktori yang masih berjalan hingga selesai (Direktori yang sudah dibuat akan mendownload gambar sampai selesai dan membuat file txt, lalu zip dan delete direktori).
 
@@ -567,3 +750,9 @@ semua proses for dan zip dilakukan. Pada kasus ini diberikan
 ``` 
 Dimana pada akhir process akan dilakukan pengecekan. Jika s == 0 maka process akan
 berhenti.
+
+Pada proses `-z`
+![](images/soal3/3e1.png)
+
+Pada proses `-x`
+![](images/soal3/3e2.png)
